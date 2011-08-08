@@ -4,6 +4,8 @@
 #include <oberon.h>
 #include <domain.h>
 
+#include <string>
+
 namespace odc {
 
 	/**
@@ -14,6 +16,9 @@ namespace odc {
 	 * Stores are used as base types for all objects that must be both extensible and persistent.
 	 */
 	class Store {
+	private:
+		INTEGER d_id;
+
 	public: 
 		static const SHORTCHAR NEWBASE = 0xF0; // (* new base type (level = 0), i.e. not yet in dict *)
 		static const SHORTCHAR NEWEXT = 0xF1;  // (* new extension type (level = 1), i.e. not yet in dict *)
@@ -23,6 +28,12 @@ namespace odc {
 		static const SHORTCHAR STORE = 0x82;   // (* general store *)
 		static const SHORTCHAR ELEM = 0x83;    // (* elem store *)
 		static const SHORTCHAR NEWLINK = 0x84; // (* link to another non-elem store in same file *)
+
+		Store(INTEGER id);
+
+		INTEGER getId();
+		
+
 		/**
 		 * PROCEDURE (s: Store) Domain (): Domain
 		 * NEW
@@ -87,6 +98,8 @@ namespace odc {
 		 * s1 = s	guaranteed
 		 */
 		// FIXME
+
+		virtual std::string toString() = 0;
 	};
 
 }

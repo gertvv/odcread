@@ -2,11 +2,21 @@
 #define _READER_H_
 
 #include <iostream>
+#include <vector>
 
 #include <oberon.h>
 #include <store.h>
+#include <alien.h>
 
 namespace odc {
+
+class TypeEntry {
+	public:
+	SHORTCHAR *name;
+	INTEGER baseId;
+
+	TypeEntry(SHORTCHAR *typeName) : name(typeName), baseId(-1) {}
+};
 
 /**
  * TYPE Reader
@@ -34,8 +44,26 @@ private:
 	 */
 	bool d_readAlien;
 
-	INTEGER d_nextElemId;
-	INTEGER d_nextStoreId;
+	std::vector<TypeEntry*> d_typeList;
+
+	std::vector<Store*> d_elemList; // FIXME: WTH, why are these different?
+	std::vector<Store*> d_storeList;
+
+	Store *d_store;
+
+	struct ReaderState {
+		/**
+		 * Position of the next store in the current level
+		 */
+		std::streampos next;
+		/**
+		 * Position just after the last read store
+		 */
+		std::streampos end;
+	};
+	ReaderState *d_state;
+
+	INTEGER d_cause;
 
 	public:
 	/**
@@ -102,7 +130,9 @@ private:
 	 * NEW
 	 * Same as ReadSChar, but has a CHAR-type parameter.
 	 * This procedure is provided to simplify migration from Release 1.2 to 1.3.
-	 * 
+	 */
+	CHAR readXChar();
+	/** 
 	 * PROCEDURE (VAR rd: Reader) ReadChar (OUT x: CHAR)
 	 * NEW
 	 * Reads a character (0000X..0FFFFX).
@@ -148,19 +178,24 @@ private:
 	 * PROCEDURE (VAR rd: Reader) ReadSet (OUT x: SET)
 	 * NEW
 	 * Reads a set (32 elements).
-	 * 
+	 */
+	/**
 	 * PROCEDURE (VAR rd: Reader) ReadSString (OUT x: ARRAY OF SHORTCHAR)
 	 * NEW
 	 * Reads a 0X-terminated short string.
 	 * 
 	 * Pre
 	 * invalid index	 LEN(x) > Length(string)
-	 * 
+	 */
+	void readSString(SHORTCHAR *out);
+	/** 
 	 * PROCEDURE (VAR rd: Reader) ReadXString (OUT x: ARRAY OF CHAR)
 	 * NEW
 	 * Same as ReadSString, but has a string-type parameter.
 	 * This procedure is provided to simplify migration from Release 1.2 to 1.3.
-	 * 
+	 */
+	//void readXString(CHAR *out);
+	/** 
 	 * PROCEDURE (VAR rd: Reader) ReadString (OUT x: ARRAY OF CHAR)
 	 * NEW
 	 * Reads a 0X-terminated string.
@@ -224,23 +259,28 @@ private:
 	Store *readNilStore();
 	Store *readLinkStore();
 	Store *readNewLinkStore();
+	void internalizeAlien(Alien *alien, std::streampos down, std::streampos end);
 	
 	/*
 		TypeName* = ARRAY 64 OF CHAR;
 		TypePath* = ARRAY 16 OF TypeName;
 		OpName* = ARRAY 32 OF CHAR;
 	 */
-	inline CHAR *newTypeName() {
-		return new CHAR[64];
+	inline SHORTCHAR *newTypeName() {
+		return new SHORTCHAR[64];
 	}
-	inline CHAR **newTypePath() {
-		CHAR **out = new CHAR*[16];
+	inline SHORTCHAR **newTypePath() {
+		SHORTCHAR **out = new SHORTCHAR*[16];
 		for (int i = 0; i < 16; ++i) {
 			out[i] = newTypeName();
 		}
 		return out;
 	}
-	void readPath(CHAR **path);
+	void readPath(SHORTCHAR **path);
+	/**
+	 * Add another component to the current path. If first==true, start a new path.
+	 */
+	void addPathComponent(bool first, SHORTCHAR *typeName);
 };
 
 } // namespace odc

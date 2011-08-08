@@ -1,8 +1,12 @@
 #include <reader.h>
+#include <alien.h>
+
+#include <string>
 
 namespace odc {
 
-Reader::Reader(std::istream &rider): d_rider(rider), d_cancelled(false), d_readAlien(false) {}
+Reader::Reader(std::istream &rider): d_rider(rider), d_cancelled(false), d_readAlien(false), d_typeList(),
+	d_state(new ReaderState()) {}
 
 SHORTCHAR Reader::readSChar() {
 	SHORTCHAR out;
@@ -19,6 +23,12 @@ INTEGER Reader::readInt() {
 		char *out = new char[4];
 		out[0] = buf[3]; out[1] = buf[2]; out[2] = buf[1]; out[3] = buf[0];
 		return *(INTEGER *)out;
+	}
+}
+
+void Reader::readSString(SHORTCHAR *out) {
+	while (*out = readSChar()) {
+		++out;
 	}
 }
 
@@ -69,24 +79,31 @@ Store *Reader::readNewLinkStore() {
 //			x := ThisStore(rd.sDict, id)
 
 Store *Reader::readStoreOrElemStore(bool isElem) {
-	INTEGER id = isElem ? d_nextElemId++ : d_nextStoreId++;
-	CHAR** path = newTypePath();
+	INTEGER id = isElem ? d_elemList.size() : d_storeList.size();
+	SHORTCHAR** path = newTypePath();
 	readPath(path);
-	CHAR* type = path[0];
-	std::cout << type << std::endl;
+	for (int i = 0; path[i] != 0; ++i) {
+		std::cout << path[i] << std::endl;
+	}
+	SHORTCHAR* type = path[0];
 	INTEGER comment = readInt();
-	return 0;
-}
-//			ReadPath(rd, path); type := path[0];
-//			nextTypeId := rd.nextTypeId; nextElemId := rd.nextElemId; nextStoreId := rd.nextStoreId;
-//			rd.ReadInt(comment);
-//			pos1 := rd.Pos();
-//			rd.ReadInt(next); rd.ReadInt(down); rd.ReadInt(len);
-//			pos := rd.Pos();
-//			IF next > 0 THEN rd.st.next := pos1 + next + 4 ELSE rd.st.next := 0 END;
-//			IF down > 0 THEN downPos := pos1 + down + 8 ELSE downPos := 0 END;
-//			rd.st.end := pos + len;
-//			rd.cause := 0;
+	std::streampos pos1 = d_rider.tellg();
+	std::streamoff next = readInt();
+	std::streamoff down = readInt();
+	std::streamoff len = readInt();
+	std::streampos pos = d_rider.tellg();
+	if (next > 0) {
+		d_state->next = pos1 + next + (std::streamoff)4;
+	} else {
+		d_state->next = 0;
+	}
+	int downPos = 0;
+	if (down > 0) {
+		downPos = pos1 + down + (std::streamoff)8;
+	}
+	d_state->end = pos + len;
+	d_cause = 0;
+	// FIXME: insert whole bunch of checks here
 //			ASSERT(len >= 0, 101);
 //			IF next # 0 THEN
 //				ASSERT(rd.st.next > pos1, 102);
@@ -98,6 +115,43 @@ Store *Reader::readStoreOrElemStore(bool isElem) {
 //				ASSERT(downPos > pos1, 104);
 //				ASSERT(downPos < rd.st.end, 105)
 //			END;
+
+	void *t = 0; // FIXME type lookup here
+	if (t != 0) {
+//				x := NewStore(t); x.isElem := kind = elem
+	} else {
+//				rd.cause := thisTypeRes; AlienTypeReport(rd.cause, type);
+//				x := NIL
+	}
+
+	Store *x = 0;
+	if (x != 0) { // IF READING SUCCEEDS, INSERT MORE CHECKS HERE
+	} else {
+//				rd.SetPos(pos);
+//				ASSERT(rd.cause # 0, 107);
+		Alien *alien = new Alien(id, path); //, d_cause); //,file
+		if (d_store == 0) {
+			d_store = alien;
+		} else {
+			// join(d_store, alien)
+			std::cout << "Man, should have written join(.,.)" << std::endl;
+		}
+		if (isElem) {
+			d_elemList.push_back(alien);
+		} else {
+			d_storeList.push_back(alien);
+		}
+		ReaderState *save = d_state;
+//				rd.nextTypeId := nextTypeId; rd.nextElemId := nextElemId; rd.nextStoreId := nextStoreId;
+		internalizeAlien(alien, downPos, save->end);
+		d_state = save;
+//				ASSERT(rd.Pos() = rd.st.end, 108);
+//				rd.cause := 0; rd.cancelled :=  FALSE; rd.readAlien := TRUE
+		return alien;
+	}
+
+	return x;
+}
 //			t := ThisType(type);
 //			IF t # NIL THEN
 //				x := NewStore(t); x.isElem := kind = elem
@@ -157,28 +211,52 @@ Store *Reader::readStoreOrElemStore(bool isElem) {
 //				rd.cause := 0; rd.cancelled :=  FALSE; rd.readAlien := TRUE
 //			END
 
-void Reader::readPath(CHAR **path) {
+
+void Reader::internalizeAlien(Alien *alien, std::streampos down, std::streampos end) {
+	std::streampos next = down != 0 ? down : end;
+	while (d_rider.tellg() < end) {
+		if (d_rider.tellg() < next) { // for some reason, this means its a piece (unstructured)
+			std::cout << "Alien Piece" << std::endl;
+			size_t len = next - d_rider.tellg();
+			char *buf = new char[len];
+			d_rider.read(buf, len);
+			AlienComponent *comp = new AlienPiece(buf, len);
+			alien->getComponents().push_back(comp);
+		} else { // that means we've got a store
+			std::cout << "Alien Store" << std::endl;
+			d_rider.seekg(next);
+			AlienComponent *comp = new AlienPart(readStore());
+			alien->getComponents().push_back(comp);
+			next = d_state->next > 0 ? d_state->next : end;
+		}
+	}
+}
+
+void Reader::readPath(SHORTCHAR **path) {
 	SHORTCHAR kind = readSChar();
-	for (int i = 0; kind == Store::NEWEXT; ++i) {
-		std::cout << "NEWEXT" << std::endl;
-		//readXString(path[i]);
-//			AddPathComp(rd); INC(rd.nextTypeId);
+	int i;
+	for (i = 0; kind == Store::NEWEXT; ++i) {
+		readSString(path[i]);
+		addPathComponent(i == 0, path[i]);
 //			IF path[i] # elemTName THEN INC(i) END;
-//			rd.ReadSChar(kind)
+		kind = readSChar();
 	}
 
 	if (kind == Store::NEWBASE) {
-		std::cout << "NEWBASE" << std::endl;
+		readSString(path[i]);
+		addPathComponent(i == 0, path[i]);
+		++i;
 	} else if (kind == Store::OLDTYPE) {
-		std::cout << "OLDTYPE" << std::endl;
+		int id = readInt();
+		d_typeList[d_typeList.size() - 1]->baseId = id;
+//			REPEAT
+//				GetThisType(rd.tDict, id, path[i]); id := ThisBaseId(rd.tDict, id);
+//				IF path[i] # elemTName THEN INC(i) END
+//			UNTIL id = -1
 	} else {
 		throw 100;
 	}
-
-	// FIXME
-	path[0][0] = 'H';
-	path[0][1] = 'i';
-	path[0][2] = 0;
+	path[i] = 0;
 }
 //	PROCEDURE ReadPath (VAR rd: Reader; VAR path: TypePath);
 //		VAR h: TypeDict; id, extId: INTEGER; i: INTEGER; kind: SHORTCHAR;
@@ -212,5 +290,14 @@ void Reader::readPath(CHAR **path) {
 //		END;
 //		path[i] := ""
 //	END ReadPath;
+
+void Reader::addPathComponent(bool first, SHORTCHAR *typeName) {
+	int next = d_typeList.size();
+	int curr = next - 1;
+	if (!first) {
+		d_typeList[curr]->baseId = next;
+	}
+	d_typeList.push_back(new TypeEntry(typeName));
+}
 
 } // namespace odc

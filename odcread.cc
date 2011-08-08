@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <string>
 
 #include <oberon.h>
 #include <reader.h>
@@ -26,6 +27,7 @@ namespace odc {
 int main(int argc, char *argv[]) {
 	std::ifstream in(argv[1], std::ios::in | std::ios::binary);
 	odc::Store* s = odc::importDocument(in);
-	std::cout << s << std::endl;
+	std::cout << s->toString() << std::endl;
+	std::cout << in.tellg() << " " << in.eof() << std::endl;
 	return 0;
 }
