@@ -3,11 +3,13 @@
 
 #include <oberon.h>
 #include <domain.h>
+#include <typeregister.h>
 
 #include <string>
 #include <vector>
 
 namespace odc {
+	class Reader; // forward decl
 
 	class TypePath : public std::vector<std::string> {
 		public:
@@ -23,6 +25,10 @@ namespace odc {
 	 */
 	class Store {
 	private:
+		static const std::string TYPENAME;
+		static const TypeProxy<Store> PROXY;
+		static TypePath *s_typePath;
+
 		INTEGER d_id;
 
 	public: 
@@ -39,6 +45,25 @@ namespace odc {
 
 		INTEGER getId();
 		
+		/**
+		 * Get the TypeName of this object.
+		 * @see TypeRegister
+		 */
+		static const std::string &getType();
+		/**
+		 * Get the TypeName of the supertype of this object. Return 0 pointer if no supertype.
+		 * @see TypeRegister
+		 */
+		static const std::string *getSuper();
+		/**
+		 * Get the TypeName for this object.
+		 */
+		virtual const std::string &getTypeName() const;
+		/**
+		 * Get the TypePath to this object's type.
+		 * @see TypePath
+		 */
+		const TypePath &getTypePath() const;
 
 		/**
 		 * PROCEDURE (s: Store) Domain (): Domain
@@ -46,7 +71,7 @@ namespace odc {
 		 * A store may be associated with a domain. This is done by the procedure InitDomain, which assigns a domain to the store.
 		 * Domain may be called by arbitrary clients.
 		 */
-		Domain* getDomain();
+		//Domain* getDomain();
 
 		/**
 		 * PROCEDURE (s: Store) CopyFrom- (source: Store)
@@ -72,7 +97,7 @@ namespace odc {
 		 * source.Domain() = NIL	guaranteed
 		 * source is not yet initialized	guaranteed
 		 */
-//		 void internalize(Reader &reader) {
+		 virtual void internalize(Reader &reader);
 //	PROCEDURE (s: Store) Internalize- (VAR rd: Reader), NEW, EXTENSIBLE;
 //		VAR thisVersion: INTEGER;
 //	BEGIN
@@ -105,9 +130,102 @@ namespace odc {
 		 */
 		// FIXME
 
-		virtual std::string toString() = 0;
+		virtual std::string toString();
+
+		private:
+		TypePath *calcTypePath(const std::string &name) const;
 	};
 
+	class Elem : public Store {
+		private:
+		static const std::string TYPENAME;
+		static const TypeProxy<Elem> PROXY;
+
+		public:
+		Elem(INTEGER id);
+		
+		/**
+		 * Get the TypeName of this object.
+		 * @see TypeRegister
+		 */
+		static const std::string &getType();
+		/**
+		 * Get the TypeName of the supertype of this object. Return 0 pointer if no supertype.
+		 * @see TypeRegister
+		 */
+		static const std::string *getSuper();
+		/**
+		 * Get the TypeName for this object.
+		 */
+		virtual const std::string &getTypeName() const;
+
+		virtual void internalize(Reader &reader);
+	};
+
+	class Model : public Elem {
+		private:
+		static const std::string TYPENAME;
+		static const TypeProxy<Model> PROXY;
+
+		public:
+		Model(INTEGER id);
+		
+		/**
+		 * Get the TypeName of this object.
+		 * @see TypeRegister
+		 */
+		static const std::string &getType();
+		/**
+		 * Get the TypeName of the supertype of this object. Return 0 pointer if no supertype.
+		 * @see TypeRegister
+		 */
+		static const std::string *getSuper();
+		/**
+		 * Get the TypeName for this object.
+		 */
+		virtual const std::string &getTypeName() const;
+
+		virtual void internalize(Reader &reader);
+	};
+
+	class ContainerModel : public Model {
+		private:
+		static const std::string TYPENAME;
+		static const TypeProxy<ContainerModel> PROXY;
+
+		public:
+		ContainerModel(INTEGER id);
+		static const std::string &getType();
+		static const std::string *getSuper();
+		virtual const std::string &getTypeName() const;
+		virtual void internalize(Reader &reader);
+	};
+
+	class TextModel : public ContainerModel {
+		private:
+		static const std::string TYPENAME;
+		static const TypeProxy<TextModel> PROXY;
+
+		public:
+		TextModel(INTEGER id);
+		static const std::string &getType();
+		static const std::string *getSuper();
+		virtual const std::string &getTypeName() const;
+		virtual void internalize(Reader &reader);
+	};
+
+	class StdTextModel : public TextModel {
+		private:
+		static const std::string TYPENAME;
+		static const TypeProxy<StdTextModel> PROXY;
+
+		public:
+		StdTextModel(INTEGER id);
+		static const std::string &getType();
+		static const std::string *getSuper();
+		virtual const std::string &getTypeName() const;
+		virtual void internalize(Reader &reader);
+	};
 }
 
 #endif // _STORE_H_

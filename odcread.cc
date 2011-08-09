@@ -32,5 +32,7 @@ int main(int argc, char *argv[]) {
 	odc::Store* s = odc::importDocument(in);
 	std::cout << s->toString() << std::endl;
 	std::cout << in.tellg() << " " << in.eof() << std::endl;
+
+	std::cout << odc::ContainerModel(0).getTypePath().toString() << std::endl;
 	return 0;
 }

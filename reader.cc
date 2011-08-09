@@ -14,6 +14,12 @@ SHORTCHAR Reader::readSChar() {
 	return out;
 }
 
+BYTE Reader::readByte() {
+	BYTE out;
+	d_rider.read((char*)&out, 1);
+	return out;
+}
+
 INTEGER Reader::readInt() {
 	char *buf = new char[4];
 	d_rider.read(buf, 4);
@@ -30,6 +36,14 @@ void Reader::readSString(SHORTCHAR *out) {
 	while (*out = readSChar()) {
 		++out;
 	}
+}
+
+INTEGER Reader::readVersion(INTEGER min, INTEGER max) {
+	INTEGER version = readByte();
+	//if (version < min || version > max) {
+		// 			rd.TurnIntoAlien(alienVersion)
+	//}
+	return version;
 }
 
 Store* Reader::readStore() {
@@ -118,15 +132,17 @@ Store *Reader::readStoreOrElemStore(bool isElem) {
 //				ASSERT(downPos < rd.st.end, 105)
 //			END;
 
-	void *t = 0; // FIXME type lookup here
+	const TypeProxyBase *t = TypeRegister::getInstance().get(type); // FIXME type lookup here
+	Store *x = 0;
 	if (t != 0) {
+		x = t->newInstance(id);
+		x->internalize(*this);
 //				x := NewStore(t); x.isElem := kind = elem
 	} else {
 //				rd.cause := thisTypeRes; AlienTypeReport(rd.cause, type);
 //				x := NIL
 	}
 
-	Store *x = 0;
 	if (x != 0) { // IF READING SUCCEEDS, INSERT MORE CHECKS HERE
 	} else {
 //				rd.SetPos(pos);
@@ -234,6 +250,14 @@ void Reader::internalizeAlien(Alien *alien, std::streampos down, std::streampos 
 	}
 }
 
+std::string &Reader::fixTypeName(std::string &name) {
+	size_t pos = name.size() - 4;
+	if (pos > 0 && name.substr(pos, 4).compare("Desc") == 0) {
+		return name.replace(pos, 4, "^");
+	}
+	return name;
+}
+
 TypePath Reader::readPath() {
 	TypePath path;
 	SHORTCHAR kind = readSChar();
@@ -241,7 +265,8 @@ TypePath Reader::readPath() {
 	int i;
 	for (i = 0; kind == Store::NEWEXT; ++i) {
 		readSString(buf);
-		path.push_back(std::string(buf));
+		std::string name(buf);
+		path.push_back(fixTypeName(name));
 		addPathComponent(i == 0, path[i]);
 //			IF path[i] # elemTName THEN INC(i) END;
 		kind = readSChar();
@@ -249,7 +274,8 @@ TypePath Reader::readPath() {
 
 	if (kind == Store::NEWBASE) {
 		readSString(buf);
-		path.push_back(std::string(buf));
+		std::string name(buf);
+		path.push_back(fixTypeName(name));
 		addPathComponent(i == 0, path[i]);
 		++i;
 	} else if (kind == Store::OLDTYPE) {

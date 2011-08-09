@@ -135,11 +135,14 @@ private:
 	 * PROCEDURE (VAR rd: Reader) ReadChar (OUT x: CHAR)
 	 * NEW
 	 * Reads a character (0000X..0FFFFX).
-	 * 
+	 */ 
+	/**
 	 * PROCEDURE (VAR rd: Reader) ReadByte (OUT x: BYTE)
 	 * NEW
 	 * Reads a very short integer (-128..127).
-	 * 
+	 */ 
+	BYTE readByte();
+	/**
 	 * PROCEDURE (VAR rd: Reader) ReadSInt (OUT x: SHORTINT)
 	 * NEW
 	 * Reads a short integer (-32768..32767).
@@ -244,7 +247,9 @@ private:
 	 * 	rd.cause = alienVersion
 	 * 	rd.cancelled
 	 * 	rd.readAlien
-	 * 
+	 */ 
+	INTEGER readVersion(INTEGER min, INTEGER max);
+	/*
 	 * PROCEDURE (VAR rd: Reader) TurnIntoAlien (cause: INTEGER)
 	 * NEW
 	 * A store which is currently being internalized can turn itself into an alien, e.g., if it has read a component store which is an alien.
@@ -260,6 +265,7 @@ private:
 	Store *readNewLinkStore();
 	void internalizeAlien(Alien *alien, std::streampos down, std::streampos end);
 	
+	std::string &fixTypeName(std::string &name);
 	TypePath readPath();
 	/**
 	 * Add another component to the current path. If first==true, start a new path.

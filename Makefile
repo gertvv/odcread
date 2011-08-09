@@ -1,6 +1,6 @@
-HEADERS=oberon.h store.h reader.h domain.h alien.h
+HEADERS=oberon.h store.h reader.h domain.h alien.h typeregister.h
 
-odcread: odcread.o reader.o store.o util.o alien.o
+odcread: odcread.o reader.o store.o util.o alien.o typeregister.o
 	g++ -o $@ $^
 
 %.o: %.cc $(HEADERS)
