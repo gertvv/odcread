@@ -241,7 +241,6 @@ void Reader::readPath(SHORTCHAR **path) {
 	SHORTCHAR kind = readSChar();
 	int i;
 	for (i = 0; kind == Store::NEWEXT; ++i) {
-		std::cout << i << std::endl;
 		readSString(path[i]);
 		addPathComponent(i == 0, path[i]);
 //			IF path[i] # elemTName THEN INC(i) END;
@@ -249,61 +248,25 @@ void Reader::readPath(SHORTCHAR **path) {
 	}
 
 	if (kind == Store::NEWBASE) {
-		std::cout << i << std::endl;
 		readSString(path[i]);
 		addPathComponent(i == 0, path[i]);
 		++i;
 	} else if (kind == Store::OLDTYPE) {
 		int id = readInt();
-		d_typeList[d_typeList.size() - 1]->baseId = id;
+		if (i > 0) {
+			d_typeList[d_typeList.size() - 1]->baseId = id;
+		}
 		while (id != -1) {
-			std::cout << "old " << i << "id " << id << d_typeList[id]->name << std::endl;
 			path[i] = d_typeList[id]->name;
 			id = d_typeList[id]->baseId;
+//				IF path[i] # elemTName THEN INC(i) END
 			++i;
 		}
-//			REPEAT
-//				GetThisType(rd.tDict, id, path[i]); id := ThisBaseId(rd.tDict, id);
-//				IF path[i] # elemTName THEN INC(i) END
-//			UNTIL id = -1
 	} else {
 		throw 100;
 	}
-	std::cout << "term " << i << std::endl;
 	path[i] = 0;
 }
-//	PROCEDURE ReadPath (VAR rd: Reader; VAR path: TypePath);
-//		VAR h: TypeDict; id, extId: INTEGER; i: INTEGER; kind: SHORTCHAR;
-//
-//		PROCEDURE AddPathComp (VAR rd: Reader);
-//		BEGIN
-//			IF h # NIL THEN AddBaseId(h, extId, rd.nextTypeId) END;
-//			AddType(rd.tDict, rd.tHead, rd.nextTypeId, path[i]);
-//			h := rd.tHead; extId := rd.nextTypeId
-//		END AddPathComp;
-//
-//	BEGIN
-//		h := NIL; i := 0; rd.ReadSChar(kind);
-//		WHILE kind = newExt DO
-//			rd.ReadXString(path[i]);
-//			AddPathComp(rd); INC(rd.nextTypeId);
-//			IF path[i] # elemTName THEN INC(i) END;
-//			rd.ReadSChar(kind)
-//		END;
-//		IF kind = newBase THEN
-//			rd.ReadXString(path[i]);
-//			AddPathComp(rd); INC(rd.nextTypeId); INC(i)
-//		ELSE
-//			ASSERT(kind = oldType, 100);
-//			rd.ReadInt(id);
-//			IF h # NIL THEN AddBaseId(h, extId, id) END;
-//			REPEAT
-//				GetThisType(rd.tDict, id, path[i]); id := ThisBaseId(rd.tDict, id);
-//				IF path[i] # elemTName THEN INC(i) END
-//			UNTIL id = -1
-//		END;
-//		path[i] := ""
-//	END ReadPath;
 
 void Reader::addPathComponent(bool first, SHORTCHAR *typeName) {
 	int next = d_typeList.size();
