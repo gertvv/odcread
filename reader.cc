@@ -85,12 +85,9 @@ Store *Reader::readNewLinkStore() {
 
 Store *Reader::readStoreOrElemStore(bool isElem) {
 	INTEGER id = isElem ? d_elemList.size() : d_storeList.size();
-	SHORTCHAR** path = newTypePath();
-	readPath(path);
-	for (int i = 0; path[i] != 0; ++i) {
-		std::cout << path[i] << std::endl;
-	}
-	SHORTCHAR* type = path[0];
+	TypePath path = readPath();
+	std::cout << path.toString() << std::endl;
+	const std::string &type = path[0];
 	INTEGER comment = readInt();
 	std::streampos pos1 = d_rider.tellg();
 	std::streamoff next = readInt();
@@ -237,18 +234,22 @@ void Reader::internalizeAlien(Alien *alien, std::streampos down, std::streampos 
 	}
 }
 
-void Reader::readPath(SHORTCHAR **path) {
+TypePath Reader::readPath() {
+	TypePath path;
 	SHORTCHAR kind = readSChar();
+	SHORTCHAR *buf = new SHORTCHAR[64]; // TypeName has a maximum of length 64 (including terminator).
 	int i;
 	for (i = 0; kind == Store::NEWEXT; ++i) {
-		readSString(path[i]);
+		readSString(buf);
+		path.push_back(std::string(buf));
 		addPathComponent(i == 0, path[i]);
 //			IF path[i] # elemTName THEN INC(i) END;
 		kind = readSChar();
 	}
 
 	if (kind == Store::NEWBASE) {
-		readSString(path[i]);
+		readSString(buf);
+		path.push_back(std::string(buf));
 		addPathComponent(i == 0, path[i]);
 		++i;
 	} else if (kind == Store::OLDTYPE) {
@@ -257,7 +258,7 @@ void Reader::readPath(SHORTCHAR **path) {
 			d_typeList[d_typeList.size() - 1]->baseId = id;
 		}
 		while (id != -1) {
-			path[i] = d_typeList[id]->name;
+			path.push_back(d_typeList[id]->name);
 			id = d_typeList[id]->baseId;
 //				IF path[i] # elemTName THEN INC(i) END
 			++i;
@@ -265,10 +266,10 @@ void Reader::readPath(SHORTCHAR **path) {
 	} else {
 		throw 100;
 	}
-	path[i] = 0;
+	return path;
 }
 
-void Reader::addPathComponent(bool first, SHORTCHAR *typeName) {
+void Reader::addPathComponent(bool first, const std::string &typeName) {
 	int next = d_typeList.size();
 	int curr = next - 1;
 	if (!first) {

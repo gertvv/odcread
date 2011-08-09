@@ -10,12 +10,11 @@
 
 namespace odc {
 
-class TypeEntry {
-	public:
-	SHORTCHAR *name;
+struct TypeEntry {
+	const std::string name;
 	INTEGER baseId;
 
-	TypeEntry(SHORTCHAR *typeName) : name(typeName), baseId(-1) {}
+	TypeEntry(const std::string &typeName) : name(typeName), baseId(-1) {}
 };
 
 /**
@@ -261,26 +260,11 @@ private:
 	Store *readNewLinkStore();
 	void internalizeAlien(Alien *alien, std::streampos down, std::streampos end);
 	
-	/*
-		TypeName* = ARRAY 64 OF CHAR;
-		TypePath* = ARRAY 16 OF TypeName;
-		OpName* = ARRAY 32 OF CHAR;
-	 */
-	inline SHORTCHAR *newTypeName() {
-		return new SHORTCHAR[64];
-	}
-	inline SHORTCHAR **newTypePath() {
-		SHORTCHAR **out = new SHORTCHAR*[16];
-		for (int i = 0; i < 16; ++i) {
-			out[i] = newTypeName();
-		}
-		return out;
-	}
-	void readPath(SHORTCHAR **path);
+	TypePath readPath();
 	/**
 	 * Add another component to the current path. If first==true, start a new path.
 	 */
-	void addPathComponent(bool first, SHORTCHAR *typeName);
+	void addPathComponent(bool first, const std::string &typeName);
 };
 
 } // namespace odc

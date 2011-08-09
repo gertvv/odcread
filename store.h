@@ -5,8 +5,14 @@
 #include <domain.h>
 
 #include <string>
+#include <vector>
 
 namespace odc {
+
+	class TypePath : public std::vector<std::string> {
+		public:
+		std::string toString() const;
+	};
 
 	/**
 	 * TYPE Store

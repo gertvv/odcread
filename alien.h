@@ -5,6 +5,7 @@
 #include <store.h>
 #include <iostream>
 #include <vector>
+#include <string>
 
 namespace odc {
 
@@ -39,12 +40,12 @@ struct AlienPart : public AlienComponent {
 };
 
 class Alien : public Store {
-	SHORTCHAR **d_path;
+	const TypePath d_path;
 	std::vector<AlienComponent*> d_comps;
 
 	public:
 
-	Alien(INTEGER id, SHORTCHAR **path);
+	Alien(INTEGER id, const TypePath &path);
 
 	std::vector<AlienComponent*> & getComponents();
 
