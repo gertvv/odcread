@@ -35,14 +35,19 @@ void Reader::readSString(SHORTCHAR *out) {
 Store* Reader::readStore() {
 	SHORTCHAR kind = readSChar();
 	if (kind == Store::NIL) {
+		std::cout << "NIL STORE" << std::endl;
 		return readNilStore();
 	} else if (kind == Store::LINK) {
+		std::cout << "LINK STORE" << std::endl;
 		return readLinkStore();
 	} else if (kind == Store::NEWLINK) {
+		std::cout << "NEWLINK STORE" << std::endl;
 		return readNewLinkStore();
 	} else if (kind == Store::STORE) {
+		std::cout << "STORE STORE" << std::endl;
 		return readStoreOrElemStore(false);
 	} else if (kind == Store::ELEM) {
+		std::cout << "ELEM STORE" << std::endl;
 		return readStoreOrElemStore(true);
 	} else {
 		throw 20;
@@ -236,6 +241,7 @@ void Reader::readPath(SHORTCHAR **path) {
 	SHORTCHAR kind = readSChar();
 	int i;
 	for (i = 0; kind == Store::NEWEXT; ++i) {
+		std::cout << i << std::endl;
 		readSString(path[i]);
 		addPathComponent(i == 0, path[i]);
 //			IF path[i] # elemTName THEN INC(i) END;
@@ -243,12 +249,19 @@ void Reader::readPath(SHORTCHAR **path) {
 	}
 
 	if (kind == Store::NEWBASE) {
+		std::cout << i << std::endl;
 		readSString(path[i]);
 		addPathComponent(i == 0, path[i]);
 		++i;
 	} else if (kind == Store::OLDTYPE) {
 		int id = readInt();
 		d_typeList[d_typeList.size() - 1]->baseId = id;
+		while (id != -1) {
+			std::cout << "old " << i << "id " << id << d_typeList[id]->name << std::endl;
+			path[i] = d_typeList[id]->name;
+			id = d_typeList[id]->baseId;
+			++i;
+		}
 //			REPEAT
 //				GetThisType(rd.tDict, id, path[i]); id := ThisBaseId(rd.tDict, id);
 //				IF path[i] # elemTName THEN INC(i) END
@@ -256,6 +269,7 @@ void Reader::readPath(SHORTCHAR **path) {
 	} else {
 		throw 100;
 	}
+	std::cout << "term " << i << std::endl;
 	path[i] = 0;
 }
 //	PROCEDURE ReadPath (VAR rd: Reader; VAR path: TypePath);
