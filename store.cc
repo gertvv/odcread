@@ -112,7 +112,7 @@ const std::string &Model::getTypeName() const {
 }
 
 void Model::internalize(Reader &reader) {
-	Model::internalize(reader);
+	Elem::internalize(reader);
 	reader.readVersion(0, 0);
 }
 
@@ -161,7 +161,7 @@ void TextModel::internalize(Reader &reader) {
 }
 
 const std::string StdTextModel::TYPENAME("TextModels.StdModel^");
-//const TypeProxy<StdTextModel> StdTextModel::PROXY;
+const TypeProxy<StdTextModel> StdTextModel::PROXY;
 
 StdTextModel::StdTextModel(INTEGER id) : TextModel(id) {}
 
