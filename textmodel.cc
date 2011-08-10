@@ -86,6 +86,7 @@ void StdTextModel::internalize(Reader &reader) {
 //				lp.file := rd.rider.Base(); lp.org := org; un := lp;
 //				INC(org, len) -- increment org by len ?
 		} else { // embedded view
+			std::cout << "Found View piece" << std::endl;
 			reader.readInt(); reader.readInt();
 			Store *view = reader.readStore(); // fixme: save somewhere
 //				NEW(v); v.len := 1; v.attr := attr;
@@ -162,8 +163,6 @@ void ShortPiece::read(Reader &reader) {
 	SHORTCHAR *buf = new SHORTCHAR[d_len + 1];
 	reader.readSChar(buf, d_len);
 	buf[d_len] = 0;
-	std::cout << "READING SHORT PIECE" << std::endl;
-	std::cout << std::string(buf) << std::endl;
 	delete buf;
 }
 
