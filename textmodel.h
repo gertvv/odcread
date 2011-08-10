@@ -20,6 +20,31 @@ namespace odc {
 		virtual void internalize(Reader &reader);
 	};
 
+	class TextPiece {
+		public:
+		const size_t d_len;
+		TextPiece(size_t len);
+		virtual void read(Reader &reader) = 0;
+	};
+
+	class LongPiece : public TextPiece {
+		public:
+		LongPiece(size_t len);
+		virtual void read(Reader &reader);
+	};
+
+	class ShortPiece : public TextPiece {
+		public:
+		ShortPiece(size_t len);
+		virtual void read(Reader &reader);
+	};
+
+	class ViewPiece : public TextPiece {
+		public:
+		ViewPiece();
+		virtual void read(Reader &reader);
+	};
+
 	class StdTextModel : public TextModel {
 		private:
 		static const std::string TYPENAME;

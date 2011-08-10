@@ -131,17 +131,19 @@ private:
 	 * Reads a short character (00X..0FFX).
 	 */ 
 	SHORTCHAR readSChar();
+	void readSChar(SHORTCHAR *buf, size_t len);
 	/* PROCEDURE (VAR rd: Reader) ReadXChar (OUT x: CHAR)
 	 * NEW
 	 * Same as ReadSChar, but has a CHAR-type parameter.
 	 * This procedure is provided to simplify migration from Release 1.2 to 1.3.
 	 */
-	CHAR readXChar();
 	/** 
 	 * PROCEDURE (VAR rd: Reader) ReadChar (OUT x: CHAR)
 	 * NEW
 	 * Reads a character (0000X..0FFFFX).
 	 */ 
+	CHAR readLChar();
+	void readLChar(CHAR *buf, size_t len);
 	/**
 	 * PROCEDURE (VAR rd: Reader) ReadByte (OUT x: BYTE)
 	 * NEW

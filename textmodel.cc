@@ -2,6 +2,7 @@
 #include <reader.h>
 
 #include <vector>
+#include <assert.h>
 
 namespace odc {
 
@@ -59,9 +60,11 @@ void StdTextModel::internalize(Reader &reader) {
 	if (reader.isCancelled()) return;
 
 	std::vector<Store *> dict;
+	std::vector<TextPiece *> pieces;
 	INTEGER len = reader.readInt();
 	BYTE ano = reader.readByte();
 	std::cout << "len " << len << " ano " << (int)ano << std::endl;
+	int skip = 0;
 	while (ano != -1) {
 		if (ano == dict.size()) {
 			Store *attr = reader.readStore(); // readAttributes(); Stores.Join(t, attr)
@@ -70,11 +73,14 @@ void StdTextModel::internalize(Reader &reader) {
 		INTEGER pieceLen = reader.readInt();
 		if (pieceLen > 0) { // shortchar piece
 			std::cout << "Found SChar piece" << std::endl;
+			pieces.push_back(new ShortPiece(pieceLen));
 //				NEW(sp); sp.len := len; sp.attr := attr;
 //				sp.file := rd.rider.Base(); sp.org := org; un := sp;
 //				INC(org, len) -- increment org by len ?
 		} else if (pieceLen < 0) { // longchar piece
 			std::cout << "Found LChar piece" << std::endl;
+			assert(pieceLen % 2 == 0);
+			pieces.push_back(new LongPiece(pieceLen / 2));
 //				len := -len; ASSERT(~ODD(len), 100);
 //				NEW(lp); lp.len := len DIV 2; lp.attr := attr;
 //				lp.file := rd.rider.Base(); lp.org := org; un := lp;
@@ -86,8 +92,13 @@ void StdTextModel::internalize(Reader &reader) {
 //				rd.ReadInt(v.w); rd.ReadInt(v.h); Views.ReadView(rd, v.view);
 //				v.view.InitContext(NewContext(v, t));
 //				un := v; INC(org) -- increment org by one?? WTH?
+			pieces.push_back(new ViewPiece());
+			++skip;
 		}
 		ano = reader.readByte();
+	}
+	for (int i = 0; i < pieces.size(); ++i) {
+		pieces[i]->read(reader);
 	}
 //		rd.SetPos(org);
 }
@@ -134,5 +145,32 @@ void StdTextModel::internalize(Reader &reader) {
 //		u.next := t.trailer; t.trailer.prev := u
 //	END Internalize;
 //
+
+TextPiece::TextPiece(size_t len): d_len(len) {}
+
+LongPiece::LongPiece(size_t len): TextPiece(len) {}
+
+void LongPiece::read(Reader &reader) {
+	CHAR *buf = new CHAR[d_len];
+	reader.readLChar(buf, d_len);
+	delete buf;
+}
+
+ShortPiece::ShortPiece(size_t len): TextPiece(len) {}
+
+void ShortPiece::read(Reader &reader) {
+	SHORTCHAR *buf = new SHORTCHAR[d_len + 1];
+	reader.readSChar(buf, d_len);
+	buf[d_len] = 0;
+	std::cout << "READING SHORT PIECE" << std::endl;
+	std::cout << std::string(buf) << std::endl;
+	delete buf;
+}
+
+ViewPiece::ViewPiece(): TextPiece(0) {}
+
+void ViewPiece::read(Reader &reader) {
+	reader.readByte();
+}
 
 } // namespace odc

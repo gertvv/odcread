@@ -15,6 +15,38 @@ SHORTCHAR Reader::readSChar() {
 	return out;
 }
 
+void Reader::readSChar(SHORTCHAR *buf, size_t len) {
+	d_rider.read(buf, len);
+}
+
+CHAR Reader::readLChar() {
+	CHAR buf;
+	char *bufPtr = (char *)&buf;
+	d_rider.read(bufPtr, 2);
+	if (isLittleEndian()) {
+		return buf;
+	} else {
+		CHAR out;
+		char *outPtr = (char *)&out;
+		outPtr[0] = bufPtr[1]; outPtr[1] = bufPtr[0];
+		return out;
+	}
+}
+
+void Reader::readLChar(CHAR *buf, size_t len) {
+	char *bufPtr = (char *)buf;
+	int len2 = len * 2;
+	d_rider.read(bufPtr, len2);
+	if (isBigEndian()) {
+		char tmp;
+		for (int i = 0; i < len2; i += 2) {
+			tmp = bufPtr[i];
+			bufPtr[i] = bufPtr[i + 1];
+			bufPtr[i + 1] = tmp;
+		}
+	}
+}
+
 BYTE Reader::readByte() {
 	BYTE out;
 	d_rider.read((char*)&out, 1);
@@ -22,14 +54,16 @@ BYTE Reader::readByte() {
 }
 
 INTEGER Reader::readInt() {
-	char *buf = new char[4];
-	d_rider.read(buf, 4);
+	INTEGER buf;
+	char *bufPtr = (char*)&buf;
+	d_rider.read(bufPtr, 4);
 	if (isLittleEndian()) {
-		return *(INTEGER *)buf;
+		return buf;
 	} else {
-		char *out = new char[4];
-		out[0] = buf[3]; out[1] = buf[2]; out[2] = buf[1]; out[3] = buf[0];
-		return *(INTEGER *)out;
+		INTEGER out;
+		char *outPtr = (char *)&out;
+		outPtr[0] = bufPtr[3]; outPtr[1] = bufPtr[2]; outPtr[2] = bufPtr[1]; outPtr[3] = bufPtr[0];
+		return out;
 	}
 }
 
