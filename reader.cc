@@ -2,6 +2,7 @@
 #include <alien.h>
 
 #include <string>
+#include <assert.h>
 
 namespace odc {
 
@@ -38,11 +39,22 @@ void Reader::readSString(SHORTCHAR *out) {
 	}
 }
 
+void Reader::turnIntoAlien(int cause) {
+	assert(cause > 0);
+	d_cancelled = true;
+	d_cause = cause;
+	d_readAlien = true;
+}
+
+bool Reader::isCancelled() {
+	return d_cancelled;
+}
+
 INTEGER Reader::readVersion(INTEGER min, INTEGER max) {
 	INTEGER version = readByte();
-	//if (version < min || version > max) {
-		// 			rd.TurnIntoAlien(alienVersion)
-	//}
+	if (version < min || version > max) {
+		turnIntoAlien(ALIENVERSION);
+	}
 	return version;
 }
 
@@ -64,6 +76,7 @@ Store* Reader::readStore() {
 		std::cout << "ELEM STORE" << std::endl;
 		return readStoreOrElemStore(true);
 	} else {
+		std::cout << std::hex << (unsigned int)kind << std::endl;
 		throw 20;
 	}
 }
@@ -119,34 +132,60 @@ Store *Reader::readStoreOrElemStore(bool isElem) {
 	}
 	d_state->end = pos + len;
 	d_cause = 0;
-	// FIXME: insert whole bunch of checks here
-//			ASSERT(len >= 0, 101);
-//			IF next # 0 THEN
-//				ASSERT(rd.st.next > pos1, 102);
-//				IF down # 0 THEN
-//					ASSERT(downPos < rd.st.next, 103)
-//				END
-//			END;
-//			IF down # 0 THEN
-//				ASSERT(downPos > pos1, 104);
-//				ASSERT(downPos < rd.st.end, 105)
-//			END;
+	assert(len >= 0);
+	if (next != 0) {
+		assert(d_state->next > pos1);
+		if (down != 0) {
+			assert(downPos < d_state->next);
+		}
+	}
+	if (down > 0) {
+		assert(downPos > pos1);
+		assert(downPos < d_state->end);
+	}
 
 	const TypeProxyBase *t = TypeRegister::getInstance().get(type); // FIXME type lookup here
 	Store *x = 0;
 	if (t != 0) {
 		x = t->newInstance(id);
-		x->internalize(*this);
-//				x := NewStore(t); x.isElem := kind = elem
 	} else {
-//				rd.cause := thisTypeRes; AlienTypeReport(rd.cause, type);
-//				x := NIL
+		d_cause = TYPENOTFOUND;
 	}
 
 	if (x != 0) { // IF READING SUCCEEDS, INSERT MORE CHECKS HERE
+		if (true) { // samePath(x, path)
+			ReaderState *save = d_state;
+			d_state = new ReaderState();
+			x->internalize(*this);
+			delete d_state;
+			d_state = save;
+
+			if (d_cause != 0) {
+				x = 0;
+			}
+			assert(d_rider.tellg() == d_state->end);
+			assert(!d_rider.eof());
+		} else {
+//					rd.cause := inconsistentType; AlienTypeReport(rd.cause, type);
+			x = 0;
+		}
+	}
+
+	if (x != 0) {
+		if (d_store == 0) {
+			d_store = x;
+		} else {
+			// join(d_store, x)
+			std::cout << "Man, should have written join(.,.)" << std::endl;
+		}
+		if (isElem) {
+			d_elemList.push_back(x);
+		} else {
+			d_storeList.push_back(x);
+		}
 	} else {
-//				rd.SetPos(pos);
-//				ASSERT(rd.cause # 0, 107);
+		d_rider.seekg(pos); // x->internalize() could have left us anywhere
+		assert(d_cause != 0);
 		Alien *alien = new Alien(id, path); //, d_cause); //,file
 		if (d_store == 0) {
 			d_store = alien;
@@ -160,74 +199,21 @@ Store *Reader::readStoreOrElemStore(bool isElem) {
 			d_storeList.push_back(alien);
 		}
 		ReaderState *save = d_state;
-//				rd.nextTypeId := nextTypeId; rd.nextElemId := nextElemId; rd.nextStoreId := nextStoreId;
+		d_state = new ReaderState();
 		internalizeAlien(alien, downPos, save->end);
+		delete d_state;
 		d_state = save;
-//				ASSERT(rd.Pos() = rd.st.end, 108);
-//				rd.cause := 0; rd.cancelled :=  FALSE; rd.readAlien := TRUE
+		assert(d_rider.tellg() == d_state->end);
+
+		// we've just read the alien, so reset the state
+		d_cause = 0;
+		d_cancelled = false;
+		d_readAlien = true;
 		return alien;
 	}
 
 	return x;
 }
-//			t := ThisType(type);
-//			IF t # NIL THEN
-//				x := NewStore(t); x.isElem := kind = elem
-//			ELSE
-//				rd.cause := thisTypeRes; AlienTypeReport(rd.cause, type);
-//				x := NIL
-//			END;
-//			IF x # NIL THEN
-//				IF SamePath(t, path) THEN
-//					IF kind = elem THEN
-//						x.id := id; AddStore(rd.eDict, rd.eHead, x)
-//					ELSE
-//						x.id := id; AddStore(rd.sDict, rd.sHead, x)
-//					END;
-//					save := rd.st; rd.cause := 0; rd.cancelled :=  FALSE;
-//					x.Internalize(rd);
-//					rd.st := save;
-//					IF rd.cause # 0 THEN x := NIL
-//					ELSIF (rd.Pos() # rd.st.end) OR rd.rider.eof THEN
-//						rd.cause := inconsistentVersion; AlienReport(rd.cause);
-//						x := NIL
-//					END
-//				ELSE
-//					rd.cause := inconsistentType; AlienTypeReport(rd.cause, type);
-//					x := NIL
-//				END
-//			END;
-//			
-//			IF x # NIL THEN
-//				IF rd.noDomain THEN
-//					rd.store := x;
-//					rd.noDomain := FALSE
-//				ELSE
-//					Join(rd.store, x)
-//				END
-//			ELSE	(* x is an alien *)
-//				rd.SetPos(pos);
-//				ASSERT(rd.cause # 0, 107);
-//				NEW(a); a.path := path; a.cause := rd.cause; a.file := rd.rider.Base();
-//				IF rd.noDomain THEN
-//					rd.store := a;
-//					rd.noDomain := FALSE
-//				ELSE
-//					Join(rd.store, a)
-//				END;
-//				IF kind = elem THEN
-//					a.id := id; AddStore(rd.eDict, rd.eHead, a)
-//				ELSE
-//					a.id := id; AddStore(rd.sDict, rd.sHead, a)
-//				END;
-//				save := rd.st;
-//				rd.nextTypeId := nextTypeId; rd.nextElemId := nextElemId; rd.nextStoreId := nextStoreId;
-//				InternalizeAlien(rd, a.comps, downPos, pos, len);
-//				rd.st := save;
-//				x := a;
-//				ASSERT(rd.Pos() = rd.st.end, 108);
-//				rd.cause := 0; rd.cancelled :=  FALSE; rd.readAlien := TRUE
-//			END
 
 
 void Reader::internalizeAlien(Alien *alien, std::streampos down, std::streampos end) {

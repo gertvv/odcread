@@ -25,6 +25,9 @@ struct TypeEntry {
  */ 
 class Reader {
 private:
+	static const unsigned int TYPENOTFOUND = 1;
+	static const unsigned int ALIENVERSION = 2;
+
 	/*
 	 * rider-: Files.Reader
 	 * The file rider which links a Reader to a file.
@@ -33,7 +36,7 @@ private:
 
 	/*
 	 * cancelled-: BOOLEAN	valid during a Store.Internalize call
-	 * Tells whether the currently executing Internalize has been called by ReadVersion or TurnIntoAlien.
+	 * Tells whether the currently executing Internalize has been cancelled by ReadVersion or TurnIntoAlien.
 	 */
 	bool d_cancelled;
 
@@ -42,6 +45,11 @@ private:
 	 * Tells whether any alien has been read since the last ConnectTo.
 	 */
 	bool d_readAlien;
+
+	/**
+	 * Cause of current read being alien.
+	 */
+	unsigned int d_cause;
 
 	std::vector<TypeEntry*> d_typeList;
 
@@ -61,8 +69,6 @@ private:
 		std::streampos end;
 	};
 	ReaderState *d_state;
-
-	INTEGER d_cause;
 
 	public:
 	/**
@@ -257,6 +263,9 @@ private:
 	 * Pre
 	 * 20	cause > 0
 	 */
+	void turnIntoAlien(int cause);
+
+	bool isCancelled();
 
 	private:
 	Store *readStoreOrElemStore(bool isElem);

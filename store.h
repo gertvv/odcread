@@ -27,7 +27,6 @@ namespace odc {
 	private:
 		static const std::string TYPENAME;
 		static const TypeProxy<Store> PROXY;
-		static TypePath *s_typePath;
 
 		INTEGER d_id;
 
@@ -63,7 +62,7 @@ namespace odc {
 		 * Get the TypePath to this object's type.
 		 * @see TypePath
 		 */
-		const TypePath &getTypePath() const;
+		void getTypePath(TypePath *path) const;
 
 		/**
 		 * PROCEDURE (s: Store) Domain (): Domain
@@ -133,7 +132,7 @@ namespace odc {
 		virtual std::string toString();
 
 		private:
-		TypePath *calcTypePath(const std::string &name) const;
+		void calcTypePath(TypePath * out, const std::string &name) const;
 	};
 
 	class Elem : public Store {
@@ -195,32 +194,6 @@ namespace odc {
 
 		public:
 		ContainerModel(INTEGER id);
-		static const std::string &getType();
-		static const std::string *getSuper();
-		virtual const std::string &getTypeName() const;
-		virtual void internalize(Reader &reader);
-	};
-
-	class TextModel : public ContainerModel {
-		private:
-		static const std::string TYPENAME;
-		static const TypeProxy<TextModel> PROXY;
-
-		public:
-		TextModel(INTEGER id);
-		static const std::string &getType();
-		static const std::string *getSuper();
-		virtual const std::string &getTypeName() const;
-		virtual void internalize(Reader &reader);
-	};
-
-	class StdTextModel : public TextModel {
-		private:
-		static const std::string TYPENAME;
-		static const TypeProxy<StdTextModel> PROXY;
-
-		public:
-		StdTextModel(INTEGER id);
 		static const std::string &getType();
 		static const std::string *getSuper();
 		virtual const std::string &getTypeName() const;

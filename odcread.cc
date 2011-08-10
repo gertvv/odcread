@@ -33,6 +33,8 @@ int main(int argc, char *argv[]) {
 	std::cout << s->toString() << std::endl;
 	std::cout << in.tellg() << " " << in.eof() << std::endl;
 
-	std::cout << odc::ContainerModel(0).getTypePath().toString() << std::endl;
+	odc::TypePath path;
+	odc::ContainerModel(0).getTypePath(&path);
+	std::cout << path.toString() << std::endl;
 	return 0;
 }
