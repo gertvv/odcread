@@ -25,30 +25,36 @@ namespace odc {
 		const size_t d_len;
 		TextPiece(size_t len);
 		virtual void read(Reader &reader) = 0;
+		virtual std::string toString() = 0;
 	};
 
 	class LongPiece : public TextPiece {
 		public:
 		LongPiece(size_t len);
 		virtual void read(Reader &reader);
+		virtual std::string toString();
 	};
 
 	class ShortPiece : public TextPiece {
 		public:
 		ShortPiece(size_t len);
 		virtual void read(Reader &reader);
+		virtual std::string toString();
 	};
 
 	class ViewPiece : public TextPiece {
+		Store *d_view;
 		public:
-		ViewPiece();
+		ViewPiece(Store *view);
 		virtual void read(Reader &reader);
+		virtual std::string toString();
 	};
 
 	class StdTextModel : public TextModel {
 		private:
 		static const std::string TYPENAME;
 		static const TypeProxy<StdTextModel> PROXY;
+		std::vector<TextPiece *> d_pieces;
 
 		public:
 		StdTextModel(INTEGER id);
@@ -56,6 +62,8 @@ namespace odc {
 		static const std::string *getSuper();
 		virtual const std::string &getTypeName() const;
 		virtual void internalize(Reader &reader);
+
+		virtual std::string toString();
 	};
 
 } // namespace odc

@@ -4,6 +4,9 @@
 #include <vector>
 #include <assert.h>
 
+//#include <fstream>
+//#include <iostream>
+
 namespace odc {
 
 const std::string TextModel::TYPENAME("TextModels.Model^");
@@ -32,7 +35,7 @@ void TextModel::internalize(Reader &reader) {
 const std::string StdTextModel::TYPENAME("TextModels.StdModel^");
 const TypeProxy<StdTextModel> StdTextModel::PROXY;
 
-StdTextModel::StdTextModel(INTEGER id) : TextModel(id) {}
+StdTextModel::StdTextModel(INTEGER id) : TextModel(id), d_pieces() {}
 
 const std::string &StdTextModel::getType() {
 	return TYPENAME;
@@ -60,7 +63,6 @@ void StdTextModel::internalize(Reader &reader) {
 	if (reader.isCancelled()) return;
 
 	std::vector<Store *> dict;
-	std::vector<TextPiece *> pieces;
 	INTEGER len = reader.readInt();
 	BYTE ano = reader.readByte();
 	std::cout << "len " << len << " ano " << (int)ano << std::endl;
@@ -73,14 +75,14 @@ void StdTextModel::internalize(Reader &reader) {
 		INTEGER pieceLen = reader.readInt();
 		if (pieceLen > 0) { // shortchar piece
 			std::cout << "Found SChar piece" << std::endl;
-			pieces.push_back(new ShortPiece(pieceLen));
+			d_pieces.push_back(new ShortPiece(pieceLen));
 //				NEW(sp); sp.len := len; sp.attr := attr;
 //				sp.file := rd.rider.Base(); sp.org := org; un := sp;
 //				INC(org, len) -- increment org by len ?
 		} else if (pieceLen < 0) { // longchar piece
 			std::cout << "Found LChar piece" << std::endl;
 			assert(pieceLen % 2 == 0);
-			pieces.push_back(new LongPiece(pieceLen / 2));
+			d_pieces.push_back(new LongPiece(pieceLen / 2));
 //				len := -len; ASSERT(~ODD(len), 100);
 //				NEW(lp); lp.len := len DIV 2; lp.attr := attr;
 //				lp.file := rd.rider.Base(); lp.org := org; un := lp;
@@ -93,13 +95,13 @@ void StdTextModel::internalize(Reader &reader) {
 //				rd.ReadInt(v.w); rd.ReadInt(v.h); Views.ReadView(rd, v.view);
 //				v.view.InitContext(NewContext(v, t));
 //				un := v; INC(org) -- increment org by one?? WTH?
-			pieces.push_back(new ViewPiece());
+			d_pieces.push_back(new ViewPiece(view));
 			++skip;
 		}
 		ano = reader.readByte();
 	}
-	for (int i = 0; i < pieces.size(); ++i) {
-		pieces[i]->read(reader);
+	for (int i = 0; i < d_pieces.size(); ++i) {
+		d_pieces[i]->read(reader);
 	}
 //		rd.SetPos(org);
 }
@@ -147,6 +149,14 @@ void StdTextModel::internalize(Reader &reader) {
 //	END Internalize;
 //
 
+std::string StdTextModel::toString() {
+	std::string sofar = "StdTextModel { ";
+	for (int i = 0; i < d_pieces.size(); ++i) {
+		sofar += d_pieces[i]->toString() + " ";
+	}
+	return sofar + "}";
+}
+
 TextPiece::TextPiece(size_t len): d_len(len) {}
 
 LongPiece::LongPiece(size_t len): TextPiece(len) {}
@@ -157,19 +167,36 @@ void LongPiece::read(Reader &reader) {
 	delete buf;
 }
 
+std::string LongPiece::toString() {
+	return std::string("LongPiece");
+}
+
 ShortPiece::ShortPiece(size_t len): TextPiece(len) {}
 
 void ShortPiece::read(Reader &reader) {
+//	static char piece[] = "pieceA";
 	SHORTCHAR *buf = new SHORTCHAR[d_len + 1];
 	reader.readSChar(buf, d_len);
 	buf[d_len] = 0;
+//	std::ofstream ofs(piece, std::ios::out);
+//	ofs.write(buf, d_len);
+//	ofs.close();
+//	++piece[5];
 	delete buf;
 }
 
-ViewPiece::ViewPiece(): TextPiece(0) {}
+std::string ShortPiece::toString() {
+	return std::string("ShortPiece");
+}
+
+ViewPiece::ViewPiece(Store *view): TextPiece(0), d_view(view) {}
 
 void ViewPiece::read(Reader &reader) {
 	reader.readByte();
+}
+
+std::string ViewPiece::toString() {
+	return std::string("ViewPiece { ") + d_view->toString() + " }";
 }
 
 } // namespace odc

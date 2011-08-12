@@ -11,7 +11,10 @@ std::string AlienPiece::toString() {
 AlienPart::AlienPart(Store * const _store): store(_store) {}
 
 std::string AlienPart::toString() {
-	return store->toString();
+	if (store != 0)
+		return store->toString();
+	else
+		return "NULL";
 }
 
 Alien::Alien(INTEGER id, const TypePath &path): Store(id), d_path(path), d_comps() {}
