@@ -120,6 +120,14 @@ Store* Reader::readStore() {
 //			kind: SHORTCHAR; path: TypePath; type: TypeName;
 //			save: ReaderState;
 Store *Reader::readNilStore() {
+	INTEGER comment = readInt();
+	std::streamoff next = readInt();
+	d_state->end = d_rider.tellg();
+	if (next > 0 || (next == 0 && comment % 2 == 1)) {
+		d_state->next = d_state->end + next;
+	} else {
+		d_state->next = 0;
+	}
 	return 0;
 }
 //		IF kind = nil THEN
