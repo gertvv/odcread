@@ -65,7 +65,7 @@ void StdTextModel::internalize(Reader &reader) {
 	std::vector<Store *> dict;
 	INTEGER len = reader.readInt();
 	BYTE ano = reader.readByte();
-	std::cout << "len " << len << " ano " << (int)ano << std::endl;
+	//std::cout << "len " << len << " ano " << (int)ano << std::endl;
 	int skip = 0;
 	while (ano != -1) {
 		if (ano == dict.size()) {
@@ -74,13 +74,13 @@ void StdTextModel::internalize(Reader &reader) {
 		}
 		INTEGER pieceLen = reader.readInt();
 		if (pieceLen > 0) { // shortchar piece
-			std::cout << "Found SChar piece" << std::endl;
+			//std::cout << "Found SChar piece" << std::endl;
 			d_pieces.push_back(new ShortPiece(pieceLen));
 //				NEW(sp); sp.len := len; sp.attr := attr;
 //				sp.file := rd.rider.Base(); sp.org := org; un := sp;
 //				INC(org, len) -- increment org by len ?
 		} else if (pieceLen < 0) { // longchar piece
-			std::cout << "Found LChar piece" << std::endl;
+			//std::cout << "Found LChar piece" << std::endl;
 			assert(pieceLen % 2 == 0);
 			d_pieces.push_back(new LongPiece(pieceLen / 2));
 //				len := -len; ASSERT(~ODD(len), 100);
@@ -88,7 +88,7 @@ void StdTextModel::internalize(Reader &reader) {
 //				lp.file := rd.rider.Base(); lp.org := org; un := lp;
 //				INC(org, len) -- increment org by len ?
 		} else { // embedded view
-			std::cout << "Found View piece" << std::endl;
+			//std::cout << "Found View piece" << std::endl;
 			reader.readInt(); reader.readInt();
 			Store *view = reader.readStore(); // fixme: save somewhere
 //				NEW(v); v.len := 1; v.attr := attr;
@@ -178,6 +178,7 @@ void ShortPiece::read(Reader &reader) {
 	SHORTCHAR *buf = new SHORTCHAR[d_len + 1];
 	reader.readSChar(buf, d_len);
 	buf[d_len] = 0;
+	std::cout.write(buf, d_len);
 //	std::ofstream ofs(piece, std::ios::out);
 //	ofs.write(buf, d_len);
 //	ofs.close();

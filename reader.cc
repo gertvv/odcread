@@ -95,22 +95,22 @@ INTEGER Reader::readVersion(INTEGER min, INTEGER max) {
 Store* Reader::readStore() {
 	SHORTCHAR kind = readSChar();
 	if (kind == Store::NIL) {
-		std::cout << "NIL STORE" << std::endl;
+		//std::cout << "NIL STORE" << std::endl;
 		return readNilStore();
 	} else if (kind == Store::LINK) {
-		std::cout << "LINK STORE" << std::endl;
+		//std::cout << "LINK STORE" << std::endl;
 		return readLinkStore();
 	} else if (kind == Store::NEWLINK) {
-		std::cout << "NEWLINK STORE" << std::endl;
+		//std::cout << "NEWLINK STORE" << std::endl;
 		return readNewLinkStore();
 	} else if (kind == Store::STORE) {
-		std::cout << "STORE STORE" << std::endl;
+		//std::cout << "STORE STORE" << std::endl;
 		return readStoreOrElemStore(false);
 	} else if (kind == Store::ELEM) {
-		std::cout << "ELEM STORE" << std::endl;
+		//std::cout << "ELEM STORE" << std::endl;
 		return readStoreOrElemStore(true);
 	} else {
-		std::cout << std::hex << (unsigned int)kind << std::endl;
+		//std::cout << std::hex << (unsigned int)kind << std::endl;
 		throw 20;
 	}
 }
@@ -155,7 +155,7 @@ Store *Reader::readNewLinkStore() {
 Store *Reader::readStoreOrElemStore(bool isElem) {
 	INTEGER id = isElem ? d_elemList.size() : d_storeList.size();
 	TypePath path = readPath();
-	std::cout << path.toString() << std::endl;
+	//std::cout << path.toString() << std::endl;
 	const std::string &type = path[0];
 	INTEGER comment = readInt();
 	std::streampos pos1 = d_rider.tellg();
@@ -218,7 +218,7 @@ Store *Reader::readStoreOrElemStore(bool isElem) {
 			d_store = x;
 		} else {
 			// join(d_store, x)
-			std::cout << "Man, should have written join(.,.)" << std::endl;
+			//std::cout << "Man, should have written join(.,.)" << std::endl;
 		}
 		if (isElem) {
 			d_elemList.push_back(x);
@@ -233,7 +233,7 @@ Store *Reader::readStoreOrElemStore(bool isElem) {
 			d_store = alien;
 		} else {
 			// join(d_store, alien)
-			std::cout << "Man, should have written join(.,.)" << std::endl;
+			//std::cout << "Man, should have written join(.,.)" << std::endl;
 		}
 		if (isElem) {
 			d_elemList.push_back(alien);
@@ -262,14 +262,14 @@ void Reader::internalizeAlien(Alien *alien, std::streampos down, std::streampos 
 	std::streampos next = down != 0 ? down : end;
 	while (d_rider.tellg() < end) {
 		if (d_rider.tellg() < next) { // for some reason, this means its a piece (unstructured)
-			std::cout << "Alien Piece" << std::endl;
+			//std::cout << "Alien Piece" << std::endl;
 			size_t len = next - d_rider.tellg();
 			char *buf = new char[len];
 			d_rider.read(buf, len);
 			AlienComponent *comp = new AlienPiece(buf, len);
 			alien->getComponents().push_back(comp);
 		} else { // that means we've got a store
-			std::cout << "Alien Store" << std::endl;
+			//std::cout << "Alien Store" << std::endl;
 			d_rider.seekg(next);
 			AlienComponent *comp = new AlienPart(readStore());
 			alien->getComponents().push_back(comp);
