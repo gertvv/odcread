@@ -25,12 +25,17 @@ namespace odc {
 		static const std::string TYPENAME;
 		static const TypeProxy<Fold> PROXY;
 
+		Store *d_hidden;
+		SHORTCHAR *d_label;
+
 		public:
 		Fold(INTEGER id);
 		static const std::string &getType();
 		static const std::string *getSuper();
 		virtual const std::string &getTypeName() const;
 		virtual void internalize(Reader &reader);
+
+		virtual std::string toString();
 	};
 
 }

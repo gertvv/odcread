@@ -53,14 +53,21 @@ void Fold::internalize(Reader &reader) {
 //		rd.ReadXInt(xint); fold.collapsed := xint = 0;
 	reader.readSInt();
 //		rd.ReadXString(fold.label);
-	SHORTCHAR label[32];
-	reader.readSString(label); // the label
+	d_label = new SHORTCHAR[32];
+	reader.readSString(d_label); // the label
 //		rd.ReadStore(store);
-	reader.readStore(); // the hidden part
+	d_hidden = reader.readStore(); // the hidden part
 //		IF store # NIL THEN fold.hidden := store(TextModels.Model); Stores.Join(fold.hidden, fold)
 //		ELSE fold.hidden := NIL
 //		END;
 //		fold.leftSide := store # NIL
+}
+
+std::string Fold::toString() {
+	if (d_hidden == 0) {
+		return std::string("Fold(right)");
+	}
+	return std::string("Fold(left)") + std::string(" { ") + d_hidden->toString() + std::string("  }");
 }
 
 } // namespace odc
