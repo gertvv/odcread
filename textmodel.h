@@ -29,15 +29,21 @@ namespace odc {
 	};
 
 	class LongPiece : public TextPiece {
+		private:
+		CHAR *d_buf;
 		public:
 		LongPiece(size_t len);
+		~LongPiece();
 		virtual void read(Reader &reader);
 		virtual std::string toString();
 	};
 
 	class ShortPiece : public TextPiece {
+		private:
+		SHORTCHAR *d_buf;
 		public:
 		ShortPiece(size_t len);
+		~ShortPiece();
 		virtual void read(Reader &reader);
 		virtual std::string toString();
 	};

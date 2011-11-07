@@ -89,8 +89,8 @@ void StdTextModel::internalize(Reader &reader) {
 //				INC(org, len) -- increment org by len ?
 		} else { // embedded view
 			//std::cout << "Found View piece" << std::endl;
-			reader.readInt(); reader.readInt();
-			Store *view = reader.readStore(); // fixme: save somewhere
+			reader.readInt(); reader.readInt(); // view width + height: ignore
+			Store *view = reader.readStore();
 //				NEW(v); v.len := 1; v.attr := attr;
 //				rd.ReadInt(v.w); rd.ReadInt(v.h); Views.ReadView(rd, v.view);
 //				v.view.InitContext(NewContext(v, t));
@@ -161,33 +161,40 @@ TextPiece::TextPiece(size_t len): d_len(len) {}
 
 LongPiece::LongPiece(size_t len): TextPiece(len) {}
 
+LongPiece::~LongPiece() {
+	delete d_buf;
+}
+
 void LongPiece::read(Reader &reader) {
-	CHAR *buf = new CHAR[d_len];
-	reader.readLChar(buf, d_len);
-	delete buf;
+	d_buf = new CHAR[d_len];
+	reader.readLChar(d_buf, d_len);
 }
 
 std::string LongPiece::toString() {
-	return std::string("LongPiece");
+	return std::string("LongPiece(FIXME)");// + std::wstring((wchar_t*)d_buf) + std::string(")");
 }
 
 ShortPiece::ShortPiece(size_t len): TextPiece(len) {}
 
+ShortPiece::~ShortPiece() {
+	delete d_buf;
+}
+
 void ShortPiece::read(Reader &reader) {
 //	static char piece[] = "pieceA";
-	SHORTCHAR *buf = new SHORTCHAR[d_len + 1];
-	reader.readSChar(buf, d_len);
-	buf[d_len] = 0;
-	std::cout.write(buf, d_len);
+	d_buf = new SHORTCHAR[d_len + 1];
+	reader.readSChar(d_buf, d_len);
+	d_buf[d_len] = 0;
+//	std::cout.write(buf, d_len);
 //	std::ofstream ofs(piece, std::ios::out);
 //	ofs.write(buf, d_len);
 //	ofs.close();
 //	++piece[5];
-	delete buf;
+//	delete buf;
 }
 
 std::string ShortPiece::toString() {
-	return std::string("ShortPiece");
+	return std::string("ShortPiece(") + std::string(d_buf) + std::string(")");
 }
 
 ViewPiece::ViewPiece(Store *view): TextPiece(0), d_view(view) {}
