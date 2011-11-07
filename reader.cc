@@ -53,6 +53,20 @@ BYTE Reader::readByte() {
 	return out;
 }
 
+SHORTINT Reader::readSInt() {
+	SHORTINT buf;
+	char *bufPtr = (char*)&buf;
+	d_rider.read(bufPtr, 2);
+	if (isLittleEndian()) {
+		return buf;
+	} else {
+		SHORTINT out;
+		char *outPtr = (char *)&out;
+		outPtr[0] = bufPtr[1]; outPtr[1] = bufPtr[0];
+		return out;
+	}
+}
+
 INTEGER Reader::readInt() {
 	INTEGER buf;
 	char *bufPtr = (char*)&buf;

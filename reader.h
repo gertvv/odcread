@@ -154,7 +154,9 @@ private:
 	 * PROCEDURE (VAR rd: Reader) ReadSInt (OUT x: SHORTINT)
 	 * NEW
 	 * Reads a short integer (-32768..32767).
-	 * 
+	 */
+	SHORTINT readSInt();
+	/** 
 	 * PROCEDURE (VAR rd: Reader) ReadXInt (OUT x: INTEGER)
 	 * NEW
 	 * Same as ReadSInt, but has an INTEGER-type parameter.

@@ -26,7 +26,7 @@ void View::internalize(Reader &reader) {
 	reader.readVersion(0, 0);
 }
 
-const std::string Fold::TYPENAME("Folds.Fold^");
+const std::string Fold::TYPENAME("StdFolds.Fold^");
 const TypeProxy<Fold> Fold::PROXY;
 
 Fold::Fold(INTEGER id) : View(id) {}
@@ -44,15 +44,19 @@ const std::string &Fold::getTypeName() const {
 }
 
 void Fold::internalize(Reader &reader) {
-	Store::internalize(reader);
+	View::internalize(reader);
 	if (reader.isCancelled()) return;
 	reader.readVersion(0, 0);
 	if (reader.isCancelled()) return;
-	reader.readSInt(); // FIXME IMPLEMENT
 //		rd.ReadXInt(xint);fold.leftSide := xint = 0;
+	reader.readSInt();
 //		rd.ReadXInt(xint); fold.collapsed := xint = 0;
+	reader.readSInt();
 //		rd.ReadXString(fold.label);
+	SHORTCHAR label[32];
+	reader.readSString(label); // the label
 //		rd.ReadStore(store);
+	reader.readStore(); // the hidden part
 //		IF store # NIL THEN fold.hidden := store(TextModels.Model); Stores.Join(fold.hidden, fold)
 //		ELSE fold.hidden := NIL
 //		END;
