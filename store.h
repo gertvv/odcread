@@ -4,6 +4,7 @@
 #include <oberon.h>
 #include <domain.h>
 #include <typeregister.h>
+#include <visitor.h>
 
 #include <string>
 #include <vector>
@@ -130,7 +131,11 @@ namespace odc {
 		// FIXME
 
 		virtual std::string toString();
-		virtual std::string toPlainText();
+
+		/**
+		 * Receiving end of the Visitor pattern.
+		 */
+		virtual void accept(Visitor &visitor) const;
 
 		private:
 		void calcTypePath(TypePath * out, const std::string &name) const;

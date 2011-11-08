@@ -157,12 +157,12 @@ std::string StdTextModel::toString() {
 	return sofar + "}";
 }
 
-std::string StdTextModel::toPlainText() {
-	std::string sofar = "";
+void StdTextModel::accept(Visitor &visitor) const {
+	visitor.partStart();
 	for (int i = 0; i < d_pieces.size(); ++i) {
-		sofar += d_pieces[i]->toPlainText();
+		d_pieces[i]->accept(visitor);
 	}
-	return sofar;
+	visitor.partEnd();
 }
 
 TextPiece::TextPiece(size_t len): d_len(len) {}
@@ -178,12 +178,16 @@ void LongPiece::read(Reader &reader) {
 	reader.readLChar(d_buf, d_len);
 }
 
-std::string LongPiece::toString() {
+std::string LongPiece::toString() const {
 	return std::string("LongPiece(FIXME)");// + std::wstring((wchar_t*)d_buf) + std::string(")");
 }
 
-std::string LongPiece::toPlainText() {
+std::string LongPiece::getText() const {
 	return std::string("FIXME");// + std::wstring((wchar_t*)d_buf) + std::string(")");
+}
+
+void LongPiece::accept(Visitor &visitor) const {
+	visitor.textLongPiece(this);
 }
 
 ShortPiece::ShortPiece(size_t len): TextPiece(len) {}
@@ -205,12 +209,20 @@ void ShortPiece::read(Reader &reader) {
 //	delete buf;
 }
 
-std::string ShortPiece::toString() {
+std::string ShortPiece::toString() const {
 	return std::string("ShortPiece(") + std::string(d_buf) + std::string(")");
 }
 
-std::string ShortPiece::toPlainText() {
-	return std::string(d_buf);
+std::string ShortPiece::getText() const {
+	std::string str(d_buf);
+	for (std::string::iterator it = str.begin(); it < str.end(); ++it) {
+		if (*it == '\r') *it = '\n';
+	}
+	return str;
+}
+
+void ShortPiece::accept(Visitor &visitor) const {
+	visitor.textShortPiece(this);
 }
 
 ViewPiece::ViewPiece(Store *view): TextPiece(0), d_view(view) {}
@@ -219,12 +231,12 @@ void ViewPiece::read(Reader &reader) {
 	reader.readByte();
 }
 
-std::string ViewPiece::toString() {
+std::string ViewPiece::toString() const {
 	return std::string("ViewPiece { ") + d_view->toString() + " }";
 }
 
-std::string ViewPiece::toPlainText() {
-	return d_view->toPlainText();
+void ViewPiece::accept(Visitor &visitor) const {
+	return d_view->accept(visitor);
 }
 
 } // namespace odc

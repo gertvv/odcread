@@ -1,5 +1,5 @@
-#ifndef _TEXTMODEL_H_
-#define _TEXTMODEL_H_
+#ifndef _FOLD_H_
+#define _FOLD_H_
 
 #include <oberon.h>
 #include <typeregister.h>
@@ -27,6 +27,7 @@ namespace odc {
 
 		Store *d_hidden;
 		SHORTCHAR *d_label;
+		bool d_collapsed;
 
 		public:
 		Fold(INTEGER id);
@@ -36,9 +37,9 @@ namespace odc {
 		virtual void internalize(Reader &reader);
 
 		virtual std::string toString();
-		virtual std::string toPlainText();
+		virtual void accept(Visitor &visitor) const;
 	};
 
 }
 
-#endif
+#endif // _FOLD_H_

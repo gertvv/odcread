@@ -25,8 +25,8 @@ namespace odc {
 		const size_t d_len;
 		TextPiece(size_t len);
 		virtual void read(Reader &reader) = 0;
-		virtual std::string toString() = 0;
-		virtual std::string toPlainText() = 0;
+		virtual std::string toString() const = 0;
+		virtual void accept(Visitor &visitor) const = 0;
 	};
 
 	class LongPiece : public TextPiece {
@@ -36,8 +36,9 @@ namespace odc {
 		LongPiece(size_t len);
 		~LongPiece();
 		virtual void read(Reader &reader);
-		virtual std::string toString();
-		virtual std::string toPlainText();
+		virtual std::string toString() const;
+		virtual std::string getText() const;
+		virtual void accept(Visitor &visitor) const;
 	};
 
 	class ShortPiece : public TextPiece {
@@ -47,8 +48,9 @@ namespace odc {
 		ShortPiece(size_t len);
 		~ShortPiece();
 		virtual void read(Reader &reader);
-		virtual std::string toString();
-		virtual std::string toPlainText();
+		virtual std::string toString() const;
+		virtual std::string getText() const;
+		virtual void accept(Visitor &visitor) const;
 	};
 
 	class ViewPiece : public TextPiece {
@@ -56,8 +58,8 @@ namespace odc {
 		public:
 		ViewPiece(Store *view);
 		virtual void read(Reader &reader);
-		virtual std::string toString();
-		virtual std::string toPlainText();
+		virtual std::string toString() const;
+		virtual void accept(Visitor &visitor) const;
 	};
 
 	class StdTextModel : public TextModel {
@@ -74,7 +76,7 @@ namespace odc {
 		virtual void internalize(Reader &reader);
 
 		virtual std::string toString();
-		virtual std::string toPlainText();
+		virtual void accept(Visitor &visitor) const;
 	};
 
 } // namespace odc

@@ -1,5 +1,6 @@
 #include <store.h>
 #include <reader.h>
+#include <visitor.h>
 
 #include <iostream>
 
@@ -65,9 +66,7 @@ std::string Store::toString() {
 	return getTypeName(); 
 }
 
-std::string Store::toPlainText() {
-	return std::string();
-}
+void Store::accept(Visitor &visitor) const {}
 
 const std::string Elem::TYPENAME("Stores.Elem^");
 const TypeProxy<Elem> Elem::PROXY;

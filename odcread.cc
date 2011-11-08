@@ -5,8 +5,90 @@
 #include <oberon.h>
 #include <reader.h>
 #include <store.h>
+#include <textmodel.h>
+#include <visitor.h>
 
 namespace odc {
+	class Context {
+		public:
+		virtual void addPiece(std::string &piece) = 0;
+		virtual std::string getPlainText() const = 0;
+	};
+	class PartContext : public Context {
+		private:
+		std::string d_text;
+		public:
+		virtual void addPiece(std::string &piece) {
+			d_text += piece;
+		}
+		virtual std::string getPlainText() const {
+			return d_text;
+		}
+	};
+	class FoldContext : public Context {
+		private:
+		bool d_collapsed;
+		bool d_haveFirst; // flag that first part has been set
+		std::string d_firstPart;
+		std::string d_remainder;
+		public:
+		FoldContext(bool collapsed) : d_collapsed(collapsed), d_haveFirst(false) {}
+		virtual void addPiece(std::string &piece) {
+			if (!d_haveFirst) {
+				d_haveFirst = true;
+				d_firstPart = piece;
+			} else {
+				d_remainder += piece;
+			}
+		}
+		virtual std::string getPlainText() const {
+			if (d_collapsed) {
+				return std::string("##=>") + d_remainder + "\n" + d_firstPart +"##<=";
+			} else {
+				return std::string("##=>") + d_firstPart + "\n" + d_remainder +"##<=";
+			}
+		}
+	};
+
+	class MyVisitor : public Visitor {
+		private:
+		std::vector<Context*> d_context;
+
+		void terminateContext() {
+			Context *c = *(d_context.end() - 1);
+			d_context.erase(d_context.end() - 1);
+			if (d_context.size() == 0) {
+				std::cout << c->getPlainText() << std::endl;
+			} else {
+				std::string text = c->getPlainText();
+				(*(d_context.end() - 1))->addPiece(text);
+			}
+			delete c;
+		}
+		
+		public:
+		virtual void partStart() {
+			d_context.push_back(new PartContext());
+		}
+		virtual void partEnd() {
+			terminateContext();
+		}
+		virtual void foldLeft(bool collapsed) {
+			d_context.push_back(new FoldContext(collapsed));
+		}
+		virtual void foldRight() {
+			terminateContext();
+		}
+		virtual void textShortPiece(const ShortPiece *piece) {
+			std::string text = piece->getText();
+			(*(d_context.end() - 1))->addPiece(text);
+		}
+		virtual void textLongPiece(const LongPiece *piece) {
+			std::string text = piece->getText();
+			(*(d_context.end() - 1))->addPiece(text);
+		}
+	};
+
 	Store* importDocument(std::istream &is) {
 		const INTEGER docTag = 0x6F4F4443;
 		const INTEGER docVersion = 0;
@@ -33,7 +115,9 @@ int main(int argc, char *argv[]) {
 //	std::cout << s->toPlainText() << std::endl;
 //	std::cout << std::endl << std::endl;
 
-	std::cout << s->toString() << std::endl;
+	odc::MyVisitor visitor;
+	s->accept(visitor);
+//	std::cout << s->toString() << std::endl;
 //	std::cout << in.tellg() << " " << in.eof() << std::endl;
 
 //	odc::TypePath path;

@@ -51,7 +51,8 @@ void Fold::internalize(Reader &reader) {
 //		rd.ReadXInt(xint);fold.leftSide := xint = 0;
 	reader.readSInt();
 //		rd.ReadXInt(xint); fold.collapsed := xint = 0;
-	reader.readSInt();
+	SHORTINT c = reader.readSInt();
+	d_collapsed = (c == 0);
 //		rd.ReadXString(fold.label);
 	d_label = new SHORTCHAR[32];
 	reader.readSString(d_label); // the label
@@ -70,11 +71,13 @@ std::string Fold::toString() {
 	return std::string("Fold(left) \"") + std::string(d_label) + std::string("\" { ") + d_hidden->toString() + std::string("  }");
 }
 
-std::string Fold::toPlainText() {
-	if (d_hidden == 0) {
-		return std::string();
+void Fold::accept(Visitor &visitor) const {
+	if (d_hidden == 0) { // right part
+		visitor.foldRight();
+	} else { // left part
+		visitor.foldLeft(d_collapsed);
+		d_hidden->accept(visitor);
 	}
-	return std::string(d_label) + std::string("\n") + d_hidden->toPlainText();
 }
 
 } // namespace odc

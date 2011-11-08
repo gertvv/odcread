@@ -3,6 +3,7 @@
 
 #include <oberon.h>
 #include <store.h>
+#include <visitor.h>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -14,7 +15,7 @@ namespace odc {
  */
 struct AlienComponent {
 	virtual std::string toString() = 0;
-	virtual std::string toPlainText() = 0;
+	virtual void accept(Visitor &visitor) const = 0;
 };
 
 /**
@@ -27,7 +28,7 @@ struct AlienPiece : public AlienComponent {
 	AlienPiece(const char * const data, const size_t len);
 
 	virtual std::string toString();
-	virtual std::string toPlainText();
+	virtual void accept(Visitor &visitor) const;
 };
 
 /**
@@ -39,7 +40,7 @@ struct AlienPart : public AlienComponent {
 	AlienPart(Store * const store);
 
 	virtual std::string toString();
-	virtual std::string toPlainText();
+	virtual void accept(Visitor &visitor) const;
 };
 
 class Alien : public Store {
@@ -57,7 +58,7 @@ class Alien : public Store {
 	// comps-: AlienComp	(** the constituent components of this alien store **)
 
 	virtual std::string toString();
-	virtual std::string toPlainText();
+	virtual void accept(Visitor &visitor) const;
 };
 
 }
