@@ -67,7 +67,14 @@ std::string Fold::toString() {
 	if (d_hidden == 0) {
 		return std::string("Fold(right)");
 	}
-	return std::string("Fold(left)") + std::string(" { ") + d_hidden->toString() + std::string("  }");
+	return std::string("Fold(left) \"") + std::string(d_label) + std::string("\" { ") + d_hidden->toString() + std::string("  }");
+}
+
+std::string Fold::toPlainText() {
+	if (d_hidden == 0) {
+		return std::string();
+	}
+	return std::string(d_label) + std::string("\n") + d_hidden->toPlainText();
 }
 
 } // namespace odc

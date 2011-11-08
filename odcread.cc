@@ -30,13 +30,14 @@ int main(int argc, char *argv[]) {
 	}
 	std::ifstream in(argv[1], std::ios::in | std::ios::binary);
 	odc::Store* s = odc::importDocument(in);
-	std::cout << std::endl << std::endl;
+//	std::cout << s->toPlainText() << std::endl;
+//	std::cout << std::endl << std::endl;
 
 	std::cout << s->toString() << std::endl;
-	std::cout << in.tellg() << " " << in.eof() << std::endl;
+//	std::cout << in.tellg() << " " << in.eof() << std::endl;
 
-	odc::TypePath path;
-	odc::ContainerModel(0).getTypePath(&path);
-	std::cout << path.toString() << std::endl;
+//	odc::TypePath path;
+//	odc::ContainerModel(0).getTypePath(&path);
+//	std::cout << path.toString() << std::endl;
 	return 0;
 }

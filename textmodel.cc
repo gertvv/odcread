@@ -157,6 +157,14 @@ std::string StdTextModel::toString() {
 	return sofar + "}";
 }
 
+std::string StdTextModel::toPlainText() {
+	std::string sofar = "";
+	for (int i = 0; i < d_pieces.size(); ++i) {
+		sofar += d_pieces[i]->toPlainText();
+	}
+	return sofar;
+}
+
 TextPiece::TextPiece(size_t len): d_len(len) {}
 
 LongPiece::LongPiece(size_t len): TextPiece(len) {}
@@ -172,6 +180,10 @@ void LongPiece::read(Reader &reader) {
 
 std::string LongPiece::toString() {
 	return std::string("LongPiece(FIXME)");// + std::wstring((wchar_t*)d_buf) + std::string(")");
+}
+
+std::string LongPiece::toPlainText() {
+	return std::string("FIXME");// + std::wstring((wchar_t*)d_buf) + std::string(")");
 }
 
 ShortPiece::ShortPiece(size_t len): TextPiece(len) {}
@@ -197,6 +209,10 @@ std::string ShortPiece::toString() {
 	return std::string("ShortPiece(") + std::string(d_buf) + std::string(")");
 }
 
+std::string ShortPiece::toPlainText() {
+	return std::string(d_buf);
+}
+
 ViewPiece::ViewPiece(Store *view): TextPiece(0), d_view(view) {}
 
 void ViewPiece::read(Reader &reader) {
@@ -205,6 +221,10 @@ void ViewPiece::read(Reader &reader) {
 
 std::string ViewPiece::toString() {
 	return std::string("ViewPiece { ") + d_view->toString() + " }";
+}
+
+std::string ViewPiece::toPlainText() {
+	return d_view->toPlainText();
 }
 
 } // namespace odc

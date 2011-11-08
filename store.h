@@ -130,6 +130,7 @@ namespace odc {
 		// FIXME
 
 		virtual std::string toString();
+		virtual std::string toPlainText();
 
 		private:
 		void calcTypePath(TypePath * out, const std::string &name) const;

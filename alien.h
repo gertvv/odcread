@@ -14,6 +14,7 @@ namespace odc {
  */
 struct AlienComponent {
 	virtual std::string toString() = 0;
+	virtual std::string toPlainText() = 0;
 };
 
 /**
@@ -26,17 +27,19 @@ struct AlienPiece : public AlienComponent {
 	AlienPiece(const char * const data, const size_t len);
 
 	virtual std::string toString();
+	virtual std::string toPlainText();
 };
 
 /**
  * Store component of an alien store
  */
 struct AlienPart : public AlienComponent {
-	Store * const store;
+	Store * const d_store;
 
-	AlienPart(Store * const _store);
+	AlienPart(Store * const store);
 
 	virtual std::string toString();
+	virtual std::string toPlainText();
 };
 
 class Alien : public Store {
@@ -54,6 +57,7 @@ class Alien : public Store {
 	// comps-: AlienComp	(** the constituent components of this alien store **)
 
 	virtual std::string toString();
+	virtual std::string toPlainText();
 };
 
 }

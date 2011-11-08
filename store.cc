@@ -65,6 +65,10 @@ std::string Store::toString() {
 	return getTypeName(); 
 }
 
+std::string Store::toPlainText() {
+	return std::string();
+}
+
 const std::string Elem::TYPENAME("Stores.Elem^");
 const TypeProxy<Elem> Elem::PROXY;
 

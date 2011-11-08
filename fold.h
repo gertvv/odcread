@@ -36,6 +36,7 @@ namespace odc {
 		virtual void internalize(Reader &reader);
 
 		virtual std::string toString();
+		virtual std::string toPlainText();
 	};
 
 }

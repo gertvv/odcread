@@ -26,6 +26,7 @@ namespace odc {
 		TextPiece(size_t len);
 		virtual void read(Reader &reader) = 0;
 		virtual std::string toString() = 0;
+		virtual std::string toPlainText() = 0;
 	};
 
 	class LongPiece : public TextPiece {
@@ -36,6 +37,7 @@ namespace odc {
 		~LongPiece();
 		virtual void read(Reader &reader);
 		virtual std::string toString();
+		virtual std::string toPlainText();
 	};
 
 	class ShortPiece : public TextPiece {
@@ -46,6 +48,7 @@ namespace odc {
 		~ShortPiece();
 		virtual void read(Reader &reader);
 		virtual std::string toString();
+		virtual std::string toPlainText();
 	};
 
 	class ViewPiece : public TextPiece {
@@ -54,6 +57,7 @@ namespace odc {
 		ViewPiece(Store *view);
 		virtual void read(Reader &reader);
 		virtual std::string toString();
+		virtual std::string toPlainText();
 	};
 
 	class StdTextModel : public TextModel {
@@ -70,6 +74,7 @@ namespace odc {
 		virtual void internalize(Reader &reader);
 
 		virtual std::string toString();
+		virtual std::string toPlainText();
 	};
 
 } // namespace odc
