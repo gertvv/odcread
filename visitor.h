@@ -35,9 +35,12 @@ namespace odc {
 		 */
 		virtual void foldRight() = 0;
 		/**
-		 * A text piece has been found.
+		 * A text piece has been found (8-bit characters).
 		 */
 		virtual void textShortPiece(const ShortPiece *piece) = 0;
+		/**
+		 * A text piece has been found (16-bit characters).
+		 */
 		virtual void textLongPiece(const LongPiece *piece) = 0;
 	};
 }
