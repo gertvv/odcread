@@ -182,8 +182,8 @@ std::string LongPiece::toString() const {
 	return std::string("LongPiece(FIXME)");// + std::wstring((wchar_t*)d_buf) + std::string(")");
 }
 
-std::string LongPiece::getText() const {
-	return std::string("FIXME");// + std::wstring((wchar_t*)d_buf) + std::string(")");
+std::wstring LongPiece::getText() const {
+	return std::wstring((wchar_t*)d_buf);
 }
 
 void LongPiece::accept(Visitor &visitor) const {

@@ -85,8 +85,9 @@ namespace odc {
 			d_context.top()->addPiece(text);
 		}
 		virtual void textLongPiece(const LongPiece *piece) {
-			std::string text = piece->getText();
-			d_context.top()->addPiece(text);
+			throw "Long Piece not handled";
+			//std::string text = piece->getText();
+			//d_context.top()->addPiece(text);
 		}
 	};
 

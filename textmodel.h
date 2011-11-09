@@ -37,7 +37,7 @@ namespace odc {
 		~LongPiece();
 		virtual void read(Reader &reader);
 		virtual std::string toString() const;
-		virtual std::string getText() const;
+		virtual std::wstring getText() const;
 		virtual void accept(Visitor &visitor) const;
 	};
 
