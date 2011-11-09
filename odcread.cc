@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <stack>
 
 #include <oberon.h>
 #include <reader.h>
@@ -52,40 +53,40 @@ namespace odc {
 
 	class MyVisitor : public Visitor {
 		private:
-		std::vector<Context*> d_context;
+		std::stack<Context*> d_context;
 
 		void terminateContext() {
-			Context *c = *(d_context.end() - 1);
-			d_context.erase(d_context.end() - 1);
-			if (d_context.size() == 0) {
+			Context *c = d_context.top();
+			d_context.pop();
+			if (d_context.empty()) {
 				std::cout << c->getPlainText() << std::endl;
 			} else {
 				std::string text = c->getPlainText();
-				(*(d_context.end() - 1))->addPiece(text);
+				d_context.top()->addPiece(text);
 			}
 			delete c;
 		}
 		
 		public:
 		virtual void partStart() {
-			d_context.push_back(new PartContext());
+			d_context.push(new PartContext());
 		}
 		virtual void partEnd() {
 			terminateContext();
 		}
 		virtual void foldLeft(bool collapsed) {
-			d_context.push_back(new FoldContext(collapsed));
+			d_context.push(new FoldContext(collapsed));
 		}
 		virtual void foldRight() {
 			terminateContext();
 		}
 		virtual void textShortPiece(const ShortPiece *piece) {
 			std::string text = piece->getText();
-			(*(d_context.end() - 1))->addPiece(text);
+			d_context.top()->addPiece(text);
 		}
 		virtual void textLongPiece(const LongPiece *piece) {
 			std::string text = piece->getText();
-			(*(d_context.end() - 1))->addPiece(text);
+			d_context.top()->addPiece(text);
 		}
 	};
 
