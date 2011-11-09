@@ -235,8 +235,6 @@ Store *Reader::readStoreOrElemStore(bool isElem) {
 			d_store = x;
 		} else {
 			// join(d_store, x)
-			// I have no idea what this would actually mean if it happened.
-			throw "Joining of stores not implemented";
 		}
 		if (isElem) {
 			d_elemList.push_back(x);
@@ -251,8 +249,6 @@ Store *Reader::readStoreOrElemStore(bool isElem) {
 			d_store = alien;
 		} else {
 			// join(d_store, alien)
-			// I have no idea what this would actually mean if it happened.
-			throw "Joining of stores not implemented";
 		}
 		if (isElem) {
 			d_elemList.push_back(alien);
