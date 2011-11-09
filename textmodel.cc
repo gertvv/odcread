@@ -4,9 +4,6 @@
 #include <vector>
 #include <assert.h>
 
-//#include <fstream>
-//#include <iostream>
-
 namespace odc {
 
 const std::string TextModel::TYPENAME("TextModels.Model^");
@@ -46,92 +43,43 @@ void StdTextModel::internalize(Reader &reader) {
 	reader.readVersion(0, 1);
 	if (reader.isCancelled()) return;
 
-	std::vector<Store *> dict;
-	INTEGER len = reader.readInt();
+	std::vector<Store *> dict; // attribute dictionary
+
+	// reads the meta-data
+	INTEGER len = reader.readInt(); // lenght of meta-data section
 	BYTE ano = reader.readByte();
-	//std::cout << "len " << len << " ano " << (int)ano << std::endl;
-	int skip = 0;
 	while (ano != -1) {
+		// This part reads the piece's attributes. These are ignored for now,
+		// but may be needed in the future.
 		if (ano == dict.size()) {
-			Store *attr = reader.readStore(); // readAttributes(); Stores.Join(t, attr)
-			dict.push_back(attr);
+			dict.push_back(reader.readStore());
 		}
+		Store *attr = dict[ano];
+
 		INTEGER pieceLen = reader.readInt();
 		if (pieceLen > 0) { // shortchar piece
-			//std::cout << "Found SChar piece" << std::endl;
 			d_pieces.push_back(new ShortPiece(pieceLen));
-//				NEW(sp); sp.len := len; sp.attr := attr;
-//				sp.file := rd.rider.Base(); sp.org := org; un := sp;
-//				INC(org, len) -- increment org by len ?
 		} else if (pieceLen < 0) { // longchar piece
-			//std::cout << "Found LChar piece" << std::endl;
 			assert(pieceLen % 2 == 0);
-			d_pieces.push_back(new LongPiece(pieceLen / 2));
-//				len := -len; ASSERT(~ODD(len), 100);
-//				NEW(lp); lp.len := len DIV 2; lp.attr := attr;
-//				lp.file := rd.rider.Base(); lp.org := org; un := lp;
-//				INC(org, len) -- increment org by len ?
+			d_pieces.push_back(new LongPiece(-pieceLen / 2));
 		} else { // embedded view
-			//std::cout << "Found View piece" << std::endl;
 			reader.readInt(); reader.readInt(); // view width + height: ignore
 			Store *view = reader.readStore();
-//				NEW(v); v.len := 1; v.attr := attr;
-//				rd.ReadInt(v.w); rd.ReadInt(v.h); Views.ReadView(rd, v.view);
-//				v.view.InitContext(NewContext(v, t));
-//				un := v; INC(org) -- increment org by one?? WTH?
 			d_pieces.push_back(new ViewPiece(view));
-			++skip;
 		}
 		ano = reader.readByte();
 	}
+
+	// reads the pieces described in the meta-data
 	for (int i = 0; i < d_pieces.size(); ++i) {
 		d_pieces[i]->read(reader);
 	}
-//		rd.SetPos(org);
+
+	// free memory from stores in the dictionary
+	for (int i = 0; i < dict.size(); ++i) {
+		delete dict[i];
+	}
 }
-//	PROCEDURE (t: StdModel) Internalize (VAR rd: Stores.Reader);
-//		VAR u, un: Run; sp: Piece; lp: LPiece; v: ViewRef;
-//			org, len: INTEGER; ano: BYTE; thisVersion: INTEGER;
-//			attr: Attributes; dict: AttrDict;
-//	BEGIN
-//		ASSERT(t.Domain() = NIL, 20); ASSERT(t.len = 0, 21);
-//		t.Internalize^(rd); IF rd.cancelled THEN RETURN END;
-//		rd.ReadVersion(minVersion, maxStdModelVersion, thisVersion);
-//		IF rd.cancelled THEN RETURN END;
-//		StdInit(t);
-//		dict.len := 0; u := t.trailer;
-//		rd.ReadInt(len); org := rd.Pos() + len;
-//		rd.ReadByte(ano);
-//		WHILE ano # -1 DO
-//			IF ano = dict.len THEN
-//				ReadAttr(rd, attr); Stores.Join(t, attr);
-//				IF dict.len < dictSize THEN dict.attr[dict.len] := attr; INC(dict.len) END
-//			ELSE
-//				attr := dict.attr[ano]
-//			END;
-//			rd.ReadInt(len);
-//			IF len > 0 THEN	(* piece *)
-//				NEW(sp); sp.len := len; sp.attr := attr;
-//				sp.file := rd.rider.Base(); sp.org := org; un := sp;
-//				INC(org, len)
-//			ELSIF len < 0 THEN	(* longchar piece *)
-//				len := -len; ASSERT(~ODD(len), 100);
-//				NEW(lp); lp.len := len DIV 2; lp.attr := attr;
-//				lp.file := rd.rider.Base(); lp.org := org; un := lp;
-//				INC(org, len)
-//			ELSE	(* len = 0  =>  embedded view *)
-//				NEW(v); v.len := 1; v.attr := attr;
-//				rd.ReadInt(v.w); rd.ReadInt(v.h); Views.ReadView(rd, v.view);
-//				v.view.InitContext(NewContext(v, t));
-//				un := v; INC(org)
-//			END;
-//			INC(t.len, un.len); u.next := un; un.prev := u; u := un;
-//			rd.ReadByte(ano)
-//		END;
-//		rd.SetPos(org);
-//		u.next := t.trailer; t.trailer.prev := u
-//	END Internalize;
-//
 
 std::string StdTextModel::toString() {
 	std::string sofar = "StdTextModel { ";
@@ -164,7 +112,7 @@ void LongPiece::read(Reader &reader) {
 }
 
 std::string LongPiece::toString() const {
-	return std::string("LongPiece(FIXME)");// + std::wstring((wchar_t*)d_buf) + std::string(")");
+	return std::string("LongPiece(FIXME)");
 }
 
 std::wstring LongPiece::getText() const {
