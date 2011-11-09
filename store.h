@@ -2,7 +2,6 @@
 #define _STORE_H_
 
 #include <oberon.h>
-#include <domain.h>
 #include <typeregister.h>
 #include <visitor.h>
 
