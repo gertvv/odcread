@@ -133,6 +133,7 @@ Store* Reader::readStore() {
 //			len, pos, pos1, id, comment, next, down, downPos, nextTypeId, nextElemId, nextStoreId: INTEGER;
 //			kind: SHORTCHAR; path: TypePath; type: TypeName;
 //			save: ReaderState;
+
 Store *Reader::readNilStore() {
 	INTEGER comment = readInt();
 	std::streamoff next = readInt();
@@ -149,16 +150,18 @@ Store *Reader::readNilStore() {
 //			rd.st.end := rd.Pos();
 //			IF (next > 0) OR ((next = 0) & ODD(comment)) THEN rd.st.next := rd.st.end + next ELSE rd.st.next := 0 END;
 //			x := NIL
+
 Store *Reader::readLinkStore() {
-	return 0;
+	throw "Reader::readLinkStore() not implemented";
 }
 //		ELSIF kind = link THEN
 //			rd.ReadInt(id); rd.ReadInt(comment); rd.ReadInt(next);
 //			rd.st.end := rd.Pos();
 //			IF (next > 0) OR ((next = 0) & ODD(comment)) THEN rd.st.next := rd.st.end + next ELSE rd.st.next := 0 END;
 //			x := ThisStore(rd.eDict, id)
+
 Store *Reader::readNewLinkStore() {
-	return 0;
+	throw "Reader::readNewLinkStore() not implemented";
 }
 //		ELSIF kind = newlink THEN
 //			rd.ReadInt(id); rd.ReadInt(comment); rd.ReadInt(next);
@@ -232,7 +235,8 @@ Store *Reader::readStoreOrElemStore(bool isElem) {
 			d_store = x;
 		} else {
 			// join(d_store, x)
-			//std::cout << "Man, should have written join(.,.)" << std::endl;
+			// I have no idea what this would actually mean if it happened.
+			throw "Joining of stores not implemented";
 		}
 		if (isElem) {
 			d_elemList.push_back(x);
@@ -247,7 +251,8 @@ Store *Reader::readStoreOrElemStore(bool isElem) {
 			d_store = alien;
 		} else {
 			// join(d_store, alien)
-			//std::cout << "Man, should have written join(.,.)" << std::endl;
+			// I have no idea what this would actually mean if it happened.
+			throw "Joining of stores not implemented";
 		}
 		if (isElem) {
 			d_elemList.push_back(alien);
@@ -276,14 +281,12 @@ void Reader::internalizeAlien(Alien *alien, std::streampos down, std::streampos 
 	std::streampos next = down != 0 ? down : end;
 	while (d_rider.tellg() < end) {
 		if (d_rider.tellg() < next) { // for some reason, this means its a piece (unstructured)
-			//std::cout << "Alien Piece" << std::endl;
 			size_t len = next - d_rider.tellg();
 			char *buf = new char[len];
 			d_rider.read(buf, len);
 			AlienComponent *comp = new AlienPiece(buf, len);
 			alien->getComponents().push_back(comp);
 		} else { // that means we've got a store
-			//std::cout << "Alien Store" << std::endl;
 			d_rider.seekg(next);
 			AlienComponent *comp = new AlienPart(readStore());
 			alien->getComponents().push_back(comp);
