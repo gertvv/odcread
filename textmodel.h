@@ -9,14 +9,13 @@ namespace odc {
 
 	class TextModel : public ContainerModel {
 		private:
-		static const std::string TYPENAME;
-		static const TypeProxy<TextModel> PROXY;
+		static const TypeProxy<TextModel, ContainerModel> PROXY;
 
 		public:
-		TextModel(INTEGER id);
-		static const std::string &getType();
-		static const std::string *getSuper();
+		static const std::string TYPENAME;
 		virtual const std::string &getTypeName() const;
+
+		TextModel(INTEGER id);
 		virtual void internalize(Reader &reader);
 	};
 
@@ -64,15 +63,14 @@ namespace odc {
 
 	class StdTextModel : public TextModel {
 		private:
-		static const std::string TYPENAME;
-		static const TypeProxy<StdTextModel> PROXY;
+		static const TypeProxy<StdTextModel, TextModel> PROXY;
 		std::vector<TextPiece *> d_pieces;
 
 		public:
-		StdTextModel(INTEGER id);
-		static const std::string &getType();
-		static const std::string *getSuper();
+		static const std::string TYPENAME;
 		virtual const std::string &getTypeName() const;
+
+		StdTextModel(INTEGER id);
 		virtual void internalize(Reader &reader);
 
 		virtual std::string toString();

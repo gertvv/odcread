@@ -10,20 +10,12 @@
 namespace odc {
 
 const std::string TextModel::TYPENAME("TextModels.Model^");
-const TypeProxy<TextModel> TextModel::PROXY;
+const TypeProxy<TextModel, ContainerModel> TextModel::PROXY;
 
 TextModel::TextModel(INTEGER id) : ContainerModel(id) {}
 
-const std::string &TextModel::getType() {
-	return TYPENAME;
-}
-
-const std::string *TextModel::getSuper() {
-	return &ContainerModel::getType();
-}
-
 const std::string &TextModel::getTypeName() const {
-	return getType();
+	return TYPENAME;
 }
 
 void TextModel::internalize(Reader &reader) {
@@ -33,20 +25,12 @@ void TextModel::internalize(Reader &reader) {
 }
 
 const std::string StdTextModel::TYPENAME("TextModels.StdModel^");
-const TypeProxy<StdTextModel> StdTextModel::PROXY;
+const TypeProxy<StdTextModel, TextModel> StdTextModel::PROXY;
 
 StdTextModel::StdTextModel(INTEGER id) : TextModel(id), d_pieces() {}
 
-const std::string &StdTextModel::getType() {
-	return TYPENAME;
-}
-
-const std::string *StdTextModel::getSuper() {
-	return &TextModel::getType();
-}
-
 const std::string &StdTextModel::getTypeName() const {
-	return getType();
+	return TYPENAME;
 }
 
 /*

@@ -26,12 +26,12 @@ namespace odc {
 	 */
 	class Store {
 	private:
-		static const std::string TYPENAME;
-		static const TypeProxy<Store> PROXY;
+		static const TopTypeProxy<Store> PROXY;
 
 		INTEGER d_id;
 
 	public: 
+		static const std::string TYPENAME;
 		static const SHORTCHAR NEWBASE = 0xF0; // (* new base type (level = 0), i.e. not yet in dict *)
 		static const SHORTCHAR NEWEXT = 0xF1;  // (* new extension type (level = 1), i.e. not yet in dict *)
 		static const SHORTCHAR OLDTYPE = 0xF2; // (* old type, i.e. already in dict *)
@@ -46,16 +46,6 @@ namespace odc {
 		INTEGER getId();
 		
 		/**
-		 * Get the TypeName of this object.
-		 * @see TypeRegister
-		 */
-		static const std::string &getType();
-		/**
-		 * Get the TypeName of the supertype of this object. Return 0 pointer if no supertype.
-		 * @see TypeRegister
-		 */
-		static const std::string *getSuper();
-		/**
 		 * Get the TypeName for this object.
 		 */
 		virtual const std::string &getTypeName() const;
@@ -63,7 +53,7 @@ namespace odc {
 		 * Get the TypePath to this object's type.
 		 * @see TypePath
 		 */
-		void getTypePath(TypePath *path) const;
+		TypePath getTypePath() const;
 
 		/**
 		 * PROCEDURE (s: Store) Domain (): Domain
@@ -97,7 +87,7 @@ namespace odc {
 		 * source.Domain() = NIL	guaranteed
 		 * source is not yet initialized	guaranteed
 		 */
-		 virtual void internalize(Reader &reader);
+		virtual void internalize(Reader &reader);
 //	PROCEDURE (s: Store) Internalize- (VAR rd: Reader), NEW, EXTENSIBLE;
 //		VAR thisVersion: INTEGER;
 //	BEGIN
@@ -138,71 +128,42 @@ namespace odc {
 		virtual void accept(Visitor &visitor) const;
 
 		private:
-		void calcTypePath(TypePath * out, const std::string &name) const;
+		void calcTypePath(TypePath *out, const std::string &name) const;
 	};
 
 	class Elem : public Store {
 		private:
-		static const std::string TYPENAME;
-		static const TypeProxy<Elem> PROXY;
+		static const TypeProxy<Elem, Store> PROXY;
 
 		public:
-		Elem(INTEGER id);
-		
-		/**
-		 * Get the TypeName of this object.
-		 * @see TypeRegister
-		 */
-		static const std::string &getType();
-		/**
-		 * Get the TypeName of the supertype of this object. Return 0 pointer if no supertype.
-		 * @see TypeRegister
-		 */
-		static const std::string *getSuper();
-		/**
-		 * Get the TypeName for this object.
-		 */
+		static const std::string TYPENAME;
 		virtual const std::string &getTypeName() const;
 
+		Elem(INTEGER id);
 		virtual void internalize(Reader &reader);
 	};
 
 	class Model : public Elem {
 		private:
-		static const std::string TYPENAME;
-		static const TypeProxy<Model> PROXY;
+		static const TypeProxy<Model, Elem> PROXY;
 
 		public:
-		Model(INTEGER id);
-		
-		/**
-		 * Get the TypeName of this object.
-		 * @see TypeRegister
-		 */
-		static const std::string &getType();
-		/**
-		 * Get the TypeName of the supertype of this object. Return 0 pointer if no supertype.
-		 * @see TypeRegister
-		 */
-		static const std::string *getSuper();
-		/**
-		 * Get the TypeName for this object.
-		 */
+		static const std::string TYPENAME;
 		virtual const std::string &getTypeName() const;
 
+		Model(INTEGER id);
 		virtual void internalize(Reader &reader);
 	};
 
 	class ContainerModel : public Model {
 		private:
-		static const std::string TYPENAME;
-		static const TypeProxy<ContainerModel> PROXY;
+		static const TypeProxy<ContainerModel, Model> PROXY;
 
 		public:
-		ContainerModel(INTEGER id);
-		static const std::string &getType();
-		static const std::string *getSuper();
+		static const std::string TYPENAME;
 		virtual const std::string &getTypeName() const;
+
+		ContainerModel(INTEGER id);
 		virtual void internalize(Reader &reader);
 	};
 }

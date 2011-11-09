@@ -4,20 +4,12 @@
 namespace odc {
 
 const std::string View::TYPENAME("Views.View^");
-const TypeProxy<View> View::PROXY;
+const TypeProxy<View, Store> View::PROXY;
 
 View::View(INTEGER id) : Store(id) {}
 
-const std::string &View::getType() {
-	return TYPENAME;
-}
-
-const std::string *View::getSuper() {
-	return &Store::getType();
-}
-
 const std::string &View::getTypeName() const {
-	return getType();
+	return TYPENAME;
 }
 
 void View::internalize(Reader &reader) {
@@ -27,20 +19,12 @@ void View::internalize(Reader &reader) {
 }
 
 const std::string Fold::TYPENAME("StdFolds.Fold^");
-const TypeProxy<Fold> Fold::PROXY;
+const TypeProxy<Fold, View> Fold::PROXY;
 
 Fold::Fold(INTEGER id) : View(id) {}
 
-const std::string &Fold::getType() {
-	return TYPENAME;
-}
-
-const std::string *Fold::getSuper() {
-	return &View::getType();
-}
-
 const std::string &Fold::getTypeName() const {
-	return getType();
+	return TYPENAME;
 }
 
 void Fold::internalize(Reader &reader) {

@@ -9,31 +9,29 @@ namespace odc {
 
 	class View : public Store {
 		private:
-		static const std::string TYPENAME;
-		static const TypeProxy<View> PROXY;
+		static const TypeProxy<View, Store> PROXY;
 
 		public:
-		View(INTEGER id);
-		static const std::string &getType();
-		static const std::string *getSuper();
+		static const std::string TYPENAME;
 		virtual const std::string &getTypeName() const;
+
+		View(INTEGER id);
 		virtual void internalize(Reader &reader);
 	};
 
 	class Fold : public View {
 		private:
-		static const std::string TYPENAME;
-		static const TypeProxy<Fold> PROXY;
+		static const TypeProxy<Fold, View> PROXY;
 
 		Store *d_hidden;
 		SHORTCHAR *d_label;
 		bool d_collapsed;
 
 		public:
-		Fold(INTEGER id);
-		static const std::string &getType();
-		static const std::string *getSuper();
+		static const std::string TYPENAME;
 		virtual const std::string &getTypeName() const;
+
+		Fold(INTEGER id);
 		virtual void internalize(Reader &reader);
 
 		virtual std::string toString();
