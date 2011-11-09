@@ -43,6 +43,11 @@ struct AlienPart : public AlienComponent {
 	virtual void accept(Visitor &visitor) const;
 };
 
+/**
+ * Any type that's not registered is treated as an "Alien".
+ * This allows us to read files even if they contain things we're not aware of.
+ * The alien will consist of AlienComponents, some of which we may be able to read.
+ */
 class Alien : public Store {
 	const TypePath d_path;
 	std::vector<AlienComponent*> d_comps;
