@@ -7,6 +7,10 @@
 
 namespace odc {
 
+	/**
+	 * Supertype for views (in MVC framework).
+	 * Included because a Fold is a View and not a Model, for some reason.
+	 */
 	class View : public Store {
 		private:
 		static const TypeProxy<View, Store> PROXY;
@@ -16,9 +20,15 @@ namespace odc {
 		virtual const std::string &getTypeName() const;
 
 		View(INTEGER id);
+		/**
+		 * Just calls super and reads the version and checks that its in the allowed range.
+		 */
 		virtual void internalize(Reader &reader);
 	};
 
+	/**
+	 * Folds are collapsible components in a text document.
+	 */
 	class Fold : public View {
 		private:
 		static const TypeProxy<Fold, View> PROXY;
@@ -32,6 +42,10 @@ namespace odc {
 		virtual const std::string &getTypeName() const;
 
 		Fold(INTEGER id);
+		/**
+		 * Calls super and reads the version and checks that its in the allowed range.
+		 * Then reads the state of the Fold, including the hidden part.
+		 */
 		virtual void internalize(Reader &reader);
 
 		virtual std::string toString();

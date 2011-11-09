@@ -151,15 +151,16 @@ void StdTextModel::accept(Visitor &visitor) const {
 
 TextPiece::TextPiece(size_t len): d_len(len) {}
 
-LongPiece::LongPiece(size_t len): TextPiece(len) {}
+LongPiece::LongPiece(size_t len): TextPiece(len * 2) {}
 
 LongPiece::~LongPiece() {
 	delete d_buf;
 }
 
 void LongPiece::read(Reader &reader) {
-	d_buf = new CHAR[d_len];
-	reader.readLChar(d_buf, d_len);
+	d_buf = new CHAR[d_len / 2 + 1];
+	reader.readLChar(d_buf, d_len / 2);
+	d_buf[d_len / 2] = 0;
 }
 
 std::string LongPiece::toString() const {
@@ -181,16 +182,9 @@ ShortPiece::~ShortPiece() {
 }
 
 void ShortPiece::read(Reader &reader) {
-//	static char piece[] = "pieceA";
 	d_buf = new SHORTCHAR[d_len + 1];
 	reader.readSChar(d_buf, d_len);
 	d_buf[d_len] = 0;
-//	std::cout.write(buf, d_len);
-//	std::ofstream ofs(piece, std::ios::out);
-//	ofs.write(buf, d_len);
-//	ofs.close();
-//	++piece[5];
-//	delete buf;
 }
 
 std::string ShortPiece::toString() const {
@@ -209,7 +203,11 @@ void ShortPiece::accept(Visitor &visitor) const {
 	visitor.textShortPiece(this);
 }
 
-ViewPiece::ViewPiece(Store *view): TextPiece(0), d_view(view) {}
+ViewPiece::ViewPiece(Store *view): TextPiece(1), d_view(view) {}
+
+ViewPiece::~ViewPiece() {
+	delete d_view;
+}
 
 void ViewPiece::read(Reader &reader) {
 	reader.readByte();
