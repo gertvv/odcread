@@ -51,6 +51,8 @@ namespace odc {
 		virtual const std::string &getTypeName() const;
 		/**
 		 * Get the TypePath to this object's type.
+		 * I'm not sure why this was necessary, I think BlackBox uses them in some code
+		 * I've omitted.
 		 * @see TypePath
 		 */
 		TypePath getTypePath() const;
@@ -64,62 +66,18 @@ namespace odc {
 		//Domain* getDomain();
 
 		/**
-		 * PROCEDURE (s: Store) CopyFrom- (source: Store)
-		 * NEW, EMPTY
-		 * Copy the contents of source to s. Copying is a deep copy.
-		 *
-		 * Pre
-		 * source # NIL	guaranteed
-		 * TYP(source) = TYP(s)	guaranteed
-		 * s.Domain() = NIL	guaranteed
-		 * s is not yet initialized	guaranteed
-		 */
-		// FIXME
-		/**
-		 * PROCEDURE (s: Store) Internalize- (VAR rd: Reader)
-		 * NEW, EMPTY
-		 * (For backward compatibility, this method is actually still EXTENSIBLE. This may change in the future.)
-		 * Reads the contents of s from reader rd. Internalize must read the same (amount of) data as is written by the corresponding Externalize procedure.
-		 * Internalize is called locally.
-		 * Internalize is extended by various persistent object types, e.g., models, views, and controllers.
-		 *
-		 * Pre
-		 * source.Domain() = NIL	guaranteed
-		 * source is not yet initialized	guaranteed
+		 * Read the contents of "this" from reader.
+		 * Just reads the version and checks that its in the allowed range.
 		 */
 		virtual void internalize(Reader &reader);
-//	PROCEDURE (s: Store) Internalize- (VAR rd: Reader), NEW, EXTENSIBLE;
-//		VAR thisVersion: INTEGER;
-//	BEGIN
-//		rd.ReadVersion(minVersion, maxStoreVersion, thisVersion);
-//		IF ~rd.cancelled & s.isElem THEN
-//			rd.ReadVersion(minVersion, maxStoreVersion, thisVersion)
-//			(* works since maxStoreVersion = maxElemVersion = 0 in pre-1.3 *)
-//		END	
-//	END Internalize;	
-//		}
+
+		// In BlackBox, a Store will also have an externalize(writer) method.
+		// The internalize and externalize should be compatible (internalize
+		// should be able to read what externalize writes).
 
 		/**
-		 * PROCEDURE (s: Store) Externalize- (VAR wr: Writer)
-		 * NEW, EMPTY
-		 * (For backward compatibility, this method is actually still EXTENSIBLE. This may change in the future.)
-		 * Write the contents of s to writer wr. Externalize must write the same (amount of) data as is read by the corresponding Internalize procedure.
-		 * Externalize ist called locally.
-		 * Externalize is extended by various persistent object types, e.g., models, views, and controllers.
+		 * A debug "toString".
 		 */
-		// FIXME
-
-		/**
-		 * PROCEDURE (s: Store) ExternalizeAs- (VAR s1: Store)
-		 * NEW, EMPTY
-		 * Before a store's Externalize procedure is called, its ExternalizeAs procedure is called, which gives the store the opportunity to denote another store that should be externalized in its place (a "proxy"). It is also possible to set s1 to NIL, which means that the store should not be externalized at all. This is used e.g. for compiler error markers, which are never stored.
-		 * ExternalizeAs ist called locally.
-		 * 
-		 * Pre
-		 * s1 = s	guaranteed
-		 */
-		// FIXME
-
 		virtual std::string toString();
 
 		/**
@@ -131,6 +89,10 @@ namespace odc {
 		void calcTypePath(TypePath *out, const std::string &name) const;
 	};
 
+	/**
+	 * An "Elem" store. Some kind of legacy BlackBox type that has been rolled into Store.
+	 * I actually found it easier to keep the two separate.
+	 */
 	class Elem : public Store {
 		private:
 		static const TypeProxy<Elem, Store> PROXY;
@@ -140,9 +102,16 @@ namespace odc {
 		virtual const std::string &getTypeName() const;
 
 		Elem(INTEGER id);
+		/**
+		 * Just calls super and reads the version and checks that its in the allowed range.
+		 */
 		virtual void internalize(Reader &reader);
 	};
 
+	/**
+	 * A "Model" store. The basis for all model objects (in MVC framework).
+	 * Most objects of interest extend Model.
+	 */
 	class Model : public Elem {
 		private:
 		static const TypeProxy<Model, Elem> PROXY;
@@ -152,9 +121,15 @@ namespace odc {
 		virtual const std::string &getTypeName() const;
 
 		Model(INTEGER id);
+		/**
+		 * Just calls super and reads the version and checks that its in the allowed range.
+		 */
 		virtual void internalize(Reader &reader);
 	};
 
+	/**
+	 * Super type for models that contain other stuff (e.g. TextModel).
+	 */
 	class ContainerModel : public Model {
 		private:
 		static const TypeProxy<ContainerModel, Model> PROXY;
@@ -164,6 +139,9 @@ namespace odc {
 		virtual const std::string &getTypeName() const;
 
 		ContainerModel(INTEGER id);
+		/**
+		 * Just calls super and reads the version and checks that its in the allowed range.
+		 */
 		virtual void internalize(Reader &reader);
 	};
 }
