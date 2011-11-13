@@ -113,12 +113,27 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	std::ifstream in(argv[1], std::ios::in | std::ios::binary);
-	odc::Store* s = odc::importDocument(in);
+
+	odc::Store* s;
+	try {
+		s = odc::importDocument(in);
+	} catch (int trap) {
+		std::cerr << "Exception in parsing file: BlackBox trap no. " << trap << std::endl;
+		return 2;
+	} catch (const char * exception) {
+		std::cerr << "Exception in parsing file: " << exception << std::endl;
+		return 2;
+	}
 //	std::cout << s->toPlainText() << std::endl;
 //	std::cout << std::endl << std::endl;
 
-	odc::MyVisitor visitor;
-	s->accept(visitor);
+	try {
+		odc::MyVisitor visitor;
+		s->accept(visitor);
+	} catch (const char * exception) {
+		std::cerr << "Exception in processing document: " << exception << std::endl;
+		return 3;
+	}
 //	std::cout << s->toString() << std::endl;
 //	std::cout << in.tellg() << " " << in.eof() << std::endl;
 

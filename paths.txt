@@ -1,0 +1,8 @@
+/home/gert/WINBUGS TSD2/
+/home/gert/Downloads/complex-interventsions/
+/home/gert/Downloads/jasa web/
+/home/gert/Downloads/bias-jrssa/
+/home/gert/Downloads/RBugsfiles/
+/home/gert/.wine/drive_c/Program Files/WinBUGS14/
+/home/gert/.wine/drive_c/Program Files/BlackBox Component Builder 1.5/
+/home/gert/.wine/drive_c/Program Files/OpenBUGS/OpenBUGS321/
