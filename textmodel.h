@@ -38,11 +38,15 @@ namespace odc {
 		virtual void read(Reader &reader) = 0;
 		virtual std::string toString() const = 0;
 		virtual void accept(Visitor &visitor) const = 0;
+		/**
+		 * Size in bytes, excluding the null-character that terminates the string (i.e. the size that is read from file).
+		 */
+		unsigned size() const;
 	};
 
 	/**
-	 * TextPiece consisting of 16-bit characters.
-	 * Not sure of the encoding.
+	 * TextPiece consisting of 16-bit unicode characters.
+	 * Not sure if the encoding is UCS-2 or UTF-16.
 	 */
 	class LongPiece : public TextPiece {
 		private:
@@ -52,16 +56,16 @@ namespace odc {
 		~LongPiece();
 		virtual void read(Reader &reader);
 		virtual std::string toString() const;
-		/**
-		 * Return the text contained in this piece.
-		 * Currently just casting the buffer to wchar_t* and hoping for the best.
-		 */
-		virtual std::wstring getText() const;
 		virtual void accept(Visitor &visitor) const;
+
+		/**
+		 * Get the buffer contents as 16-bit (UCS-2 or UTF-16 I don't know) unicode.
+		 */
+		CHAR *getBuffer() const;
 	};
 
 	/**
-	 * TextPiece consisting of 8-bit characters.
+	 * TextPiece consisting of 8-bit characters in the Latin-1 extension of ASCII.
 	 */
 	class ShortPiece : public TextPiece {
 		private:
@@ -71,8 +75,12 @@ namespace odc {
 		~ShortPiece();
 		virtual void read(Reader &reader);
 		virtual std::string toString() const;
-		virtual std::string getText() const;
 		virtual void accept(Visitor &visitor) const;
+
+		/**
+		 * Get the buffer contents as 8-bit (Latin-1) characters.
+		 */
+		SHORTCHAR *getBuffer() const;
 	};
 
 	/**

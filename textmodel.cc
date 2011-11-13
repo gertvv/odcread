@@ -99,6 +99,10 @@ void StdTextModel::accept(Visitor &visitor) const {
 
 TextPiece::TextPiece(size_t len): d_len(len) {}
 
+unsigned TextPiece::size() const {
+	return d_len;
+}
+
 LongPiece::LongPiece(size_t len): TextPiece(len * 2) {}
 
 LongPiece::~LongPiece() {
@@ -115,8 +119,8 @@ std::string LongPiece::toString() const {
 	return std::string("LongPiece(FIXME)");
 }
 
-std::wstring LongPiece::getText() const {
-	return std::wstring((wchar_t*)d_buf);
+CHAR* LongPiece::getBuffer() const {
+	return d_buf;
 }
 
 void LongPiece::accept(Visitor &visitor) const {
@@ -139,12 +143,8 @@ std::string ShortPiece::toString() const {
 	return std::string("ShortPiece(") + std::string(d_buf) + std::string(")");
 }
 
-std::string ShortPiece::getText() const {
-	std::string str(d_buf);
-	for (std::string::iterator it = str.begin(); it < str.end(); ++it) {
-		if (*it == '\r') *it = '\n';
-	}
-	return str;
+SHORTCHAR* ShortPiece::getBuffer() const {
+	return d_buf;
 }
 
 void ShortPiece::accept(Visitor &visitor) const {

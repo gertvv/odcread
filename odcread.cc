@@ -9,6 +9,12 @@
 #include <textmodel.h>
 #include <visitor.h>
 
+// Character encoding conversions
+#include <locale.h>
+#include <iconv.h>
+#include <errno.h>
+#include <string.h>
+
 namespace odc {
 	class Context {
 		public:
@@ -80,14 +86,63 @@ namespace odc {
 		virtual void foldRight() {
 			terminateContext();
 		}
+		char *getCharSet() {
+			return "UTF-8"; // FIXME setlocale(LC_CTYPE, 0) + processing
+		}
 		virtual void textShortPiece(const ShortPiece *piece) {
-			std::string text = piece->getText();
-			d_context.top()->addPiece(text);
+			iconv_t conv = iconv_open("UTF-8", "ISO-8859-1");
+			if (conv == (iconv_t)-1) {
+				std::string str("iconv initialization error: ");
+				str += strerror(errno);
+				throw str.c_str();
+			}
+			size_t bytesIn = piece->size() + 1;
+			SHORTCHAR *in = piece->getBuffer();
+			size_t bytesOut = bytesIn; // FIXME probably not safe.
+			char *out = new char[bytesIn];
+			char *outPtr = out;
+			size_t rval = iconv(conv, &in, &bytesIn, &outPtr, &bytesOut);
+			if (rval == (size_t)-1) {
+				std::string str("iconv error: ");
+				str += strerror(errno);
+				throw str.c_str();
+			}
+			iconv_close(conv);
+			std::string str(out);
+			for (std::string::iterator it = str.begin(); it < str.end(); ++it) {
+				if (*it == '\r') *it = '\n';
+			}
+			d_context.top()->addPiece(str);
 		}
 		virtual void textLongPiece(const LongPiece *piece) {
-			throw "Long Piece not handled";
-			//std::string text = piece->getText();
-			//d_context.top()->addPiece(text);
+			char *out = (char*)piece->getBuffer();
+			std::string str(out);
+			d_context.top()->addPiece(str);
+			//d_convLong = iconv_open(setlocale(LC_CTYPE, 0), "UCS-2");
+			/*
+			iconv_t conv = iconv_open("UTF-8", "UTF-8");
+			if (conv == (iconv_t)-1) {
+				std::string str("iconv initialization error: ");
+				str += strerror(errno);
+				throw str.c_str();
+			}
+			size_t bytesIn = piece->size() + 1;
+			char *in = (char*)piece->getBuffer();
+			size_t bytesOut = bytesIn; // FIXME probably not safe.
+			char *out = new char[bytesIn];
+			char *outPtr = out;
+			size_t rval = iconv(conv, &in, &bytesIn, &outPtr, &bytesOut);
+			if (rval == (size_t)-1) {
+				std::string str("iconv error: ");
+				str += strerror(errno);
+				throw str.c_str();
+			}
+			iconv_close(conv);
+			std::string str(out);
+			for (std::string::iterator it = str.begin(); it < str.end(); ++it) {
+				if (*it == '\r') *it = '\n';
+			}
+			d_context.top()->addPiece(str);*/
 		}
 	};
 
@@ -112,6 +167,10 @@ int main(int argc, char *argv[]) {
 	if (argc < 2) {
 		return 1;
 	}
+
+	// Set the locale according to the terminal's environment
+	setlocale(LC_ALL, "");
+
 	std::ifstream in(argv[1], std::ios::in | std::ios::binary);
 
 	odc::Store* s;
