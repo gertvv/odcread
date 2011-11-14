@@ -115,18 +115,19 @@ namespace odc {
 			d_context.top()->addPiece(str);
 		}
 		virtual void textLongPiece(const LongPiece *piece) {
+		/*	
 			char *out = (char*)piece->getBuffer();
 			std::string str(out);
 			d_context.top()->addPiece(str);
+		*/
 			//d_convLong = iconv_open(setlocale(LC_CTYPE, 0), "UCS-2");
-			/*
-			iconv_t conv = iconv_open("UTF-8", "UTF-8");
+			iconv_t conv = iconv_open("UTF-8", "UCS-2");
 			if (conv == (iconv_t)-1) {
 				std::string str("iconv initialization error: ");
 				str += strerror(errno);
 				throw str.c_str();
 			}
-			size_t bytesIn = piece->size() + 1;
+			size_t bytesIn = piece->size() + 2;
 			char *in = (char*)piece->getBuffer();
 			size_t bytesOut = bytesIn; // FIXME probably not safe.
 			char *out = new char[bytesIn];
@@ -142,7 +143,7 @@ namespace odc {
 			for (std::string::iterator it = str.begin(); it < str.end(); ++it) {
 				if (*it == '\r') *it = '\n';
 			}
-			d_context.top()->addPiece(str);*/
+			d_context.top()->addPiece(str);
 		}
 	};
 
