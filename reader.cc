@@ -24,16 +24,20 @@ CHAR Reader::readLChar() {
 	char *bufPtr = (char *)&buf;
 	d_rider.read(bufPtr, 2);
 	if (isLittleEndian()) {
-		return buf;
+		return buf - 0x8000;
 	} else {
 		CHAR out;
 		char *outPtr = (char *)&out;
 		outPtr[0] = bufPtr[1]; outPtr[1] = bufPtr[0];
-		return out;
+		return out - 0x8000;
 	}
 }
 
 void Reader::readLChar(CHAR *buf, size_t len) {
+	for (int i = 0; i < len; ++i) {
+		buf[i] = readLChar();
+	}
+	/*
 	char *bufPtr = (char *)buf;
 	int len2 = len * 2;
 	d_rider.read(bufPtr, len2);
@@ -45,6 +49,7 @@ void Reader::readLChar(CHAR *buf, size_t len) {
 			bufPtr[i + 1] = tmp;
 		}
 	}
+	*/
 }
 
 BYTE Reader::readByte() {
