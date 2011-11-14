@@ -91,60 +91,57 @@ namespace odc {
 			return nl_langinfo(CODESET);
 		}
 		virtual void textShortPiece(const ShortPiece *piece) {
-			iconv_t conv = iconv_open(getCharSet(), "ISO-8859-1");
-			if (conv == (iconv_t)-1) {
-				std::string str("iconv initialization error: ");
-				str += strerror(errno);
-				throw str.c_str();
-			}
-			size_t bytesIn = piece->size() + 1;
-			SHORTCHAR *in = piece->getBuffer();
-			size_t bytesOut = bytesIn; // FIXME probably not safe.
-			char *out = new char[bytesIn];
-			char *outPtr = out;
-			size_t rval = iconv(conv, &in, &bytesIn, &outPtr, &bytesOut);
-			if (rval == (size_t)-1) {
-				std::string str("iconv error: ");
-				str += strerror(errno);
-				throw str.c_str();
-			}
-			iconv_close(conv);
-			std::string str(out);
-			for (std::string::iterator it = str.begin(); it < str.end(); ++it) {
-				if (*it == '\r') *it = '\n';
-			}
+			std::string str = convert((char *)piece->getBuffer(), piece->size() + 1, (char *)"ISO-8859-1", 1);
 			d_context.top()->addPiece(str);
 		}
 		virtual void textLongPiece(const LongPiece *piece) {
-		/*	
-			char *out = (char*)piece->getBuffer();
-			std::string str(out);
+			std::string str = convert((char *)piece->getBuffer(), piece->size() + 2, (char *)"UCS-2", 2);
 			d_context.top()->addPiece(str);
-		*/
-			//d_convLong = iconv_open(setlocale(LC_CTYPE, 0), "UCS-2");
-			iconv_t conv = iconv_open(getCharSet(), "UCS-2");
+		}
+
+		/**
+		 * Convert an input character buffer in the given encoding to the
+		 * locale's encoding.
+		 */
+		std::string convert(char *in, size_t bytesIn, char *encodingIn, size_t inBytesPerChar) {
+			// Convert from the input encoding to the locale's encoding
+			iconv_t conv = iconv_open(getCharSet(), encodingIn);
+
+			// Handle errors by throwing a readable message
 			if (conv == (iconv_t)-1) {
 				std::string str("iconv initialization error: ");
 				str += strerror(errno);
 				throw str.c_str();
 			}
-			size_t bytesIn = piece->size() + 2;
-			char *in = (char*)piece->getBuffer();
-			size_t bytesOut = bytesIn; // FIXME probably not safe.
-			char *out = new char[bytesIn];
+
+			// Assume at most 4 bytes per character are needed
+			size_t bytesOut = 4 * bytesIn / inBytesPerChar;
+
+			// Allocate the output buffer
+			char *out = new char[bytesOut];
 			char *outPtr = out;
+
+			// Perform conversion
 			size_t rval = iconv(conv, &in, &bytesIn, &outPtr, &bytesOut);
 			if (rval == (size_t)-1) {
 				std::string str("iconv error: ");
 				str += strerror(errno);
 				throw str.c_str();
 			}
+
+			// Free the iconv state
 			iconv_close(conv);
+
+			// Copy result into a std::string
 			std::string str(out);
+			delete out;
+
+			// Convert newlines
 			for (std::string::iterator it = str.begin(); it < str.end(); ++it) {
 				if (*it == '\r') *it = '\n';
 			}
-			d_context.top()->addPiece(str);
+
+			return str;
 		}
 	};
 
