@@ -10,10 +10,11 @@
 #include <visitor.h>
 
 // Character encoding conversions
-#include <locale.h>
-#include <iconv.h>
-#include <errno.h>
-#include <string.h>
+#include <langinfo.h> // determine the current charset
+#include <locale.h> // locale support
+#include <iconv.h> // charset conversions
+#include <errno.h> // error codes
+#include <string.h> // string descriptions of error codes
 
 namespace odc {
 	class Context {
@@ -87,10 +88,10 @@ namespace odc {
 			terminateContext();
 		}
 		char *getCharSet() {
-			return "UTF-8"; // FIXME setlocale(LC_CTYPE, 0) + processing
+			return nl_langinfo(CODESET);
 		}
 		virtual void textShortPiece(const ShortPiece *piece) {
-			iconv_t conv = iconv_open("UTF-8", "ISO-8859-1");
+			iconv_t conv = iconv_open(getCharSet(), "ISO-8859-1");
 			if (conv == (iconv_t)-1) {
 				std::string str("iconv initialization error: ");
 				str += strerror(errno);
@@ -121,7 +122,7 @@ namespace odc {
 			d_context.top()->addPiece(str);
 		*/
 			//d_convLong = iconv_open(setlocale(LC_CTYPE, 0), "UCS-2");
-			iconv_t conv = iconv_open("UTF-8", "UCS-2");
+			iconv_t conv = iconv_open(getCharSet(), "UCS-2");
 			if (conv == (iconv_t)-1) {
 				std::string str("iconv initialization error: ");
 				str += strerror(errno);
