@@ -45,7 +45,9 @@ endef
 $(foreach src,$(SRCS),$(eval $(call depend_on_compiled_header,$(src))))
 
 clean:
-	rm -f odcread *.o */*.o */*.d */*.ih.gch
+	rm -f */*.o */module.d */module.ih.gch
 
+dist-clean: clean
+	rm -f odcread
 # Include the generated dependency files (if they exist)
 -include $(patsubst %,%/module.d,$(MODULES))
