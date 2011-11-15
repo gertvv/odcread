@@ -1,6 +1,4 @@
-#include "typeregister/typeregister.h"
-
-#include <iostream>
+#include "typeregister/typeregister.ih"
 
 namespace odc {
 

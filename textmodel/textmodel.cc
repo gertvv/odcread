@@ -1,8 +1,4 @@
-#include "textmodel/textmodel.h"
-#include "reader/reader.h"
-
-#include <vector>
-#include <assert.h>
+#include "textmodel/textmodel.ih"
 
 namespace odc {
 

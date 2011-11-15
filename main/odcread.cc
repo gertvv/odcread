@@ -1,20 +1,4 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <stack>
-
-#include "oberon.h"
-#include "reader/reader.h"
-#include "store/store.h"
-#include "textmodel/textmodel.h"
-#include "visitor/visitor.h"
-
-// Character encoding conversions
-#include <langinfo.h> // determine the current charset
-#include <locale.h> // locale support
-#include <iconv.h> // charset conversions
-#include <errno.h> // error codes
-#include <string.h> // string descriptions of error codes
+#include "main/main.ih"
 
 namespace odc {
 	class Context {

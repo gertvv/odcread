@@ -1,5 +1,4 @@
-#include "fold/fold.h"
-#include "reader/reader.h"
+#include "fold/fold.ih"
 
 namespace odc {
 

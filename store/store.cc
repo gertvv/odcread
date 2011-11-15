@@ -1,8 +1,4 @@
-#include "store/store.h"
-#include "reader/reader.h"
-#include "visitor/visitor.h"
-
-#include <iostream>
+#include "store/store.ih"
 
 namespace odc {
 
