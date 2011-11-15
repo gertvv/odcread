@@ -1,4 +1,4 @@
-#include "reader/reader.h"
+#include "reader/module.ih"
 
 namespace odc {
 	bool Reader::isBigEndian() { // http://stackoverflow.com/questions/1001307/detecting-endianness-programmatically-in-a-c-program

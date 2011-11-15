@@ -1,4 +1,4 @@
-#include "typeregister/typeregister.ih"
+#include "typeregister/module.ih"
 
 namespace odc {
 

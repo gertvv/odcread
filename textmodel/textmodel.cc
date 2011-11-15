@@ -1,4 +1,4 @@
-#include "textmodel/textmodel.ih"
+#include "textmodel/module.ih"
 
 namespace odc {
 
