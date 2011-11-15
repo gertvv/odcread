@@ -3,12 +3,12 @@
 
 #include "oberon.h"
 #include "store/store.h"
-#include "visitor/visitor.h"
-#include <iostream>
 #include <vector>
 #include <string>
 
 namespace odc {
+
+class Visitor;
 
 /**
  * Part of an alien store
@@ -22,8 +22,8 @@ struct AlienComponent {
  * Totally unstructured part of an alien store
  */
 struct AlienPiece : public AlienComponent {
-	const char * const data;
-	const size_t len;
+	char const * const data;
+	size_t const len;
 
 	AlienPiece(const char * const data, const size_t len);
 

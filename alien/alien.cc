@@ -1,30 +1,6 @@
-#include "alien/alien.h"
+#include "alien/alien.ih"
 
 namespace odc {
-
-AlienPiece::AlienPiece(const char * const _data, const size_t _len): data(_data), len(_len) {}
-
-std::string AlienPiece::toString() {
-	return std::string("AlienPiece");
-}
-
-void AlienPiece::accept(Visitor &visitor) const {
-}
-
-AlienPart::AlienPart(Store * const store): d_store(store) {}
-
-std::string AlienPart::toString() {
-	if (d_store != 0)
-		return d_store->toString();
-	else
-		return "NULL";
-}
-
-void AlienPart::accept(Visitor &visitor) const {
-	if (d_store != 0) {
-		d_store->accept(visitor);
-	}
-}
 
 Alien::Alien(INTEGER id, const TypePath &path): Store(id), d_path(path), d_comps() {}
 
@@ -46,4 +22,4 @@ void Alien::accept(Visitor &visitor) const {
 	}
 }
 
-}
+} // namespace odc
