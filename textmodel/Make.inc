@@ -1,0 +1,1 @@
+SRCS += textmodel/textmodel.cc

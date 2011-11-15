@@ -1,0 +1,1 @@
+SRCS += typeregister/typeregister.cc

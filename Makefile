@@ -1,6 +1,13 @@
-# List all source files to be compiled
-SRCS=odcread.cc reader.cc store.cc util.cc alien.cc typeregister.cc \
-	textmodel.cc fold.cc 
+MODULES := reader store alien typeregister textmodel fold
+
+# Add module directories to the include path
+CFLAGS += -I. $(patsubst %,-I%,$(MODULES))
+
+# Variables for the modules to write to
+SRCS := odcread.cc
+
+# Include module definitions
+include $(patsubst %,%/Make.inc,$(MODULES))
 
 # This rule just links the object files together
 odcread: $(SRCS:.cc=.o)
@@ -17,11 +24,11 @@ odcread: $(SRCS:.cc=.o)
 # The .d file is not an explicit target because it will need to be (re-)built
 # if and only if the .o needs to be rebuilt.
 %.o: %.cc
-	g++ -I. $< -MM -MF $*.d -MP -MT $@
-	g++ -I. $< -c -o $@
+	g++ $(CFLAGS) $< -MM -MF $*.d -MP -MT $@
+	g++ $(CFLAGS) $< -c -o $@
 
 clean:
-	rm -f odcread *.d *.o
+	rm -f odcread *.d *.o */*.o */*.d
 
 # Include the generated dependency files (if they exist)
 -include $(SRCS:.cc=.d)
