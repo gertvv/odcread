@@ -1,5 +1,5 @@
-#include <textmodel.h>
-#include <reader.h>
+#include "textmodel/textmodel.h"
+#include "reader/reader.h"
 
 #include <vector>
 #include <assert.h>

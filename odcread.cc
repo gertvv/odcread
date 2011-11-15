@@ -3,11 +3,11 @@
 #include <string>
 #include <stack>
 
-#include <oberon.h>
-#include <reader.h>
-#include <store.h>
-#include <textmodel.h>
-#include <visitor.h>
+#include "oberon.h"
+#include "reader/reader.h"
+#include "store/store.h"
+#include "textmodel/textmodel.h"
+#include "visitor/visitor.h"
 
 // Character encoding conversions
 #include <langinfo.h> // determine the current charset

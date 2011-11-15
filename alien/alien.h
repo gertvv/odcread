@@ -1,9 +1,9 @@
 #ifndef _ALIEN_H_
 #define _ALIEN_H_
 
-#include <oberon.h>
-#include <store.h>
-#include <visitor.h>
+#include "oberon.h"
+#include "store/store.h"
+#include "visitor/visitor.h"
 #include <iostream>
 #include <vector>
 #include <string>

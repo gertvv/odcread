@@ -1,12 +1,12 @@
 #ifndef _STORE_H_
 #define _STORE_H_
 
-#include <oberon.h>
-#include <typeregister.h>
-#include <visitor.h>
-
 #include <string>
 #include <vector>
+
+#include "oberon.h"
+#include "typeregister/typeregister.h"
+#include "visitor/visitor.h"
 
 namespace odc {
 	class Reader; // forward decl

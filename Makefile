@@ -1,7 +1,7 @@
 MODULES := reader store alien typeregister textmodel fold
 
 # Add module directories to the include path
-CFLAGS += -I. $(patsubst %,-I%,$(MODULES))
+CFLAGS += -I.
 
 # Variables for the modules to write to
 SRCS := odcread.cc

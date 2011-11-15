@@ -1,9 +1,9 @@
 #ifndef _TEXTMODEL_H_
 #define _TEXTMODEL_H_
 
-#include <oberon.h>
-#include <typeregister.h>
-#include <store.h>
+#include "oberon.h"
+#include "typeregister/typeregister.h"
+#include "store/store.h"
 
 namespace odc {
 

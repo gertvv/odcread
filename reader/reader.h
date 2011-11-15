@@ -4,9 +4,9 @@
 #include <iostream>
 #include <vector>
 
-#include <oberon.h>
-#include <store.h>
-#include <alien.h>
+#include "oberon.h"
+#include "store/store.h"
+#include "alien/alien.h"
 
 namespace odc {
 

@@ -1,9 +1,9 @@
 #ifndef _FOLD_H_
 #define _FOLD_H_
 
-#include <oberon.h>
-#include <typeregister.h>
-#include <store.h>
+#include "oberon.h"
+#include "typeregister/typeregister.h"
+#include "store/store.h"
 
 namespace odc {
 

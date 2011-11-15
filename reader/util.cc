@@ -1,4 +1,4 @@
-#include <oberon.h>
+#include "oberon.h"
 
 namespace odc {
 	bool isBigEndian() { // http://stackoverflow.com/questions/1001307/detecting-endianness-programmatically-in-a-c-program

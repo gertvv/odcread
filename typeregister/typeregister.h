@@ -1,9 +1,10 @@
 #ifndef _CLASSREGISTER_H_
 #define _CLASSREGISTER_H_
 
-#include <oberon.h>
 #include <map>
 #include <string>
+
+#include "oberon.h"
 
 namespace odc {
 	class Store;

@@ -1,6 +1,6 @@
-#include <store.h>
-#include <reader.h>
-#include <visitor.h>
+#include "store/store.h"
+#include "reader/reader.h"
+#include "visitor/visitor.h"
 
 #include <iostream>
 
