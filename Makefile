@@ -1,4 +1,4 @@
-MODULES := reader store alien typeregister textmodel fold
+MODULES := reader store alien typeregister textmodel fold typepath
 
 # Add module directories to the include path
 CFLAGS += -I.

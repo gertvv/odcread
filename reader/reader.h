@@ -5,10 +5,12 @@
 #include <vector>
 
 #include "oberon.h"
-#include "store/store.h"
-#include "alien/alien.h"
+#include "typepath/typepath.h"
 
 namespace odc {
+
+class Store;
+class Alien;
 
 struct TypeEntry {
 	const std::string name;
@@ -210,7 +212,7 @@ private:
 	/**
 	 * Read an alien store.
 	 */
-	void internalizeAlien(Alien *alien, std::streampos down, std::streampos end);
+	void readAlien(Alien *alien, std::streampos down, std::streampos end);
 	
 	/**
 	 * Make store name consistent with names found in BlackBox source.

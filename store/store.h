@@ -7,14 +7,10 @@
 #include "oberon.h"
 #include "typeregister/typeregister.h"
 #include "visitor/visitor.h"
+#include "typepath/typepath.h"
 
 namespace odc {
 	class Reader; // forward decl
-
-	class TypePath : public std::vector<std::string> {
-		public:
-		std::string toString() const;
-	};
 
 	/**
 	 * TYPE Store
