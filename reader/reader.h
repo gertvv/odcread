@@ -225,6 +225,10 @@ private:
 	 * Add another component to the current path. If first==true, start a new path.
 	 */
 	void addPathComponent(bool first, const std::string &typeName);
+
+	static bool isBigEndian();
+	static bool isLittleEndian();
+
 };
 
 } // namespace odc

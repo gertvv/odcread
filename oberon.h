@@ -62,9 +62,6 @@ namespace odc {
 	 * String: string in the Unicode character set, followed by a 0000X
 	 * i.e. CHAR*
 	 */
-
-	bool isBigEndian();
-	bool isLittleEndian();
 }
 
 #endif

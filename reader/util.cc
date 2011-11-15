@@ -1,7 +1,7 @@
-#include "oberon.h"
+#include "reader/reader.h"
 
 namespace odc {
-	bool isBigEndian() { // http://stackoverflow.com/questions/1001307/detecting-endianness-programmatically-in-a-c-program
+	bool Reader::isBigEndian() { // http://stackoverflow.com/questions/1001307/detecting-endianness-programmatically-in-a-c-program
 		union {
 			uint32_t i;
 			uint8_t c[4];
@@ -9,7 +9,7 @@ namespace odc {
 		return test.c[0] == 1; 
 	}
 
-	bool isLittleEndian() {
+	bool Reader::isLittleEndian() {
 		return !isBigEndian();
 	}
 }
