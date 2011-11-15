@@ -1,6 +1,11 @@
+# Modules, each containing:
+#  * $(MODULE)/Make.inc -- makefile include
+#  * $(MODULE)/$(MODULE).h -- minimal "interface" header file
+#  * $(MODULE)/$(MODULE).ih -- internal/implementation header file
+#    (only to be included by sources within the module)
+#  * $(MODULE)/*.cc -- module source files
 MODULES := reader store alien typeregister textmodel fold typepath
 
-# Add module directories to the include path
 CFLAGS += -I.
 
 # Variables for the modules to write to
@@ -32,3 +37,9 @@ clean:
 
 # Include the generated dependency files (if they exist)
 -include $(SRCS:.cc=.d)
+
+
+# TODO:
+# Each module has a .ih file that should be *the only* include from the .cc
+# files. These .ih files should be pre-compiled, and dependency caching should
+# be based on the .ih files, not the .cc files.
