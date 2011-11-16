@@ -1,1 +1,1 @@
-SRCS += fold/fold.cc
+SRCS += $(wildcard fold/*.cc)

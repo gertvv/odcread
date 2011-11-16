@@ -42,6 +42,7 @@ namespace odc {
 		virtual const std::string &getTypeName() const;
 
 		Fold(INTEGER id);
+		~Fold();
 		/**
 		 * Calls super and reads the version and checks that its in the allowed range.
 		 * Then reads the state of the Fold, including the hidden part.
