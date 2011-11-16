@@ -1,1 +1,1 @@
-SRCS += store/store.cc
+SRCS += $(wildcard store/*.cc)
